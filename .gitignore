@@ -1,0 +1,6 @@
+.DS_Store
+._*
+*.swp
+davis-station
+version.go
+weather.db

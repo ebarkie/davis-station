@@ -1,0 +1,33 @@
+{{ if . -}}
+  {{ $l := index . 0 }}
+
+  {{- with $l.Update -}}
+Weather conditions at {{ .Timestamp }}
+
+Sequence {{.Sequence}}:
+  {{- end }}
+
+  {{- with $l.Loop }}
+
+  Sensor                       Value
+  ---------------------------- -------------------------------------------------
+  Barometer                    {{ printf "%.3f" .Bar.Station }} inches
+  Temperature                  {{ printf "%.2f" .OutTemp }} degrees Fahrenheit
+  Humidity                     {{ printf "%d" .OutHumidity }} percent
+  Dew point                    {{ printf "%.2f" .DewPoint }} degrees Fahrenheit
+
+  Wind Direction               {{ printf "%d" .Wind.Cur.Dir }} degrees
+  Wind Speed                   {{ printf "%d" .Wind.Cur.Speed }} miles per hour
+
+  Rain rate                    {{ printf "%.2f" .Rain.Rate }} inches per hour
+  Rain today                   {{ printf "%.2f" .Rain.Accum.Today }} inches
+
+  Solar Radiation              {{ printf "%d" .SolarRad }} watts per meter squared
+  UV                           {{ printf "%.1f" .UVIndex }} index
+  ---------------------------- -------------------------------------------------
+
+  Forecast: {{ .Forecast }}
+  {{ end -}}
+{{ else -}}
+  Latest observation not available.
+{{ end -}}

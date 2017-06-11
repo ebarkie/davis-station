@@ -1,0 +1,568 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Davis Instruments weather station server",
+    "description": "This uses the weatherlink package to talk to a Davis weather station over a Weatherlink IP, serial, or USB interface.",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "schemes": [
+    "http"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/archive": {
+      "get": {
+        "summary": "Get archive records",
+        "tags": [
+          "Station"
+        ],
+        "parameters": [
+          {
+            "name": "begin",
+            "description": "Begin date and time in RFC3339 format. The default is 7 days before end.",
+            "in": "query",
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "end",
+            "description": "End date and time in RFC3339 format.  The default is now.",
+            "in": "query",
+            "type": "string",
+            "format": "date-time"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of archive records.",
+            "schema": {
+              "$ref": "#/definitions/Archives"
+            }
+          },
+          "400": {
+            "description": "Bad begin or end timestamp parameter."
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Get loop events",
+        "description": "Starts a Server-sent events stream.",
+        "tags": [
+          "Station"
+        ],
+        "produces": [
+          "text/event-stream"
+        ],
+        "responses": {
+          "200": {
+            "description": "Event stream started.",
+            "schema": {
+              "type": "object",
+              "x-events": {
+                "archive": {
+                  "schema": {
+                    "$ref": "#/definitions/Archive"
+                  }
+                },
+                "loop": {
+                  "schema": {
+                    "$ref": "#/definitions/Loop"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/loop": {
+      "get": {
+        "summary": "Get loop packets",
+        "tags": [
+          "Station"
+        ],
+        "parameters": [
+          {
+            "name": "lastSequence",
+            "description": "Last packet sequence successfully received.  All packets after this sequence will be sent.",
+            "in": "query",
+            "type": "number",
+            "format": "int64"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of loop packets",
+            "schema": {
+              "$ref": "#/definitions/WrappedLoops"
+            }
+          },
+          "503": {
+            "description": "Not enough samples yet (server just started) or the samples are too old (station stopped sending)."
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Archives": {
+      "title": "Archives",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Archive"
+      }
+    },
+    "Archive": {
+      "description": "Archive represents all of the data in a revision B DMP archive record.",
+      "type": "object",
+      "properties": {
+        "ET": {
+          "type": "number",
+          "format": "double"
+        },
+        "UVIndexAverage": {
+          "type": "number",
+          "format": "double"
+        },
+        "UVIndexHigh": {
+          "type": "number",
+          "format": "double"
+        },
+        "barometer": {
+          "type": "number",
+          "format": "double"
+        },
+        "extraHumidity": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "extraTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "forecast": {
+          "type": "string"
+        },
+        "insideHumidity": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "insideTemperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "leafTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "leafWetness": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "outsideHumidity": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "outsideTemperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "outsideTemperatureHigh": {
+          "type": "number",
+          "format": "double"
+        },
+        "outsideTemperatureLow": {
+          "type": "number",
+          "format": "double"
+        },
+        "rainAccumulation": {
+          "type": "number",
+          "format": "double"
+        },
+        "rainRateHigh": {
+          "type": "number",
+          "format": "double"
+        },
+        "soilMoisture": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "soilTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "solarRadiation": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "solarRadiationHigh": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "windDirectionHigh": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "windDirectionPrevailing": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "windSamples": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "windSpeedAverage": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "windSpeedHigh": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "Loop": {
+      "description": "Loop is a combined struct representation of the union of loop1 and loop2 packets.  They have a lot of overlap but the precision is sometimes different and they complement each other.",
+      "type": "object",
+      "properties": {
+        "ET": {
+          "$ref": "#/definitions/LoopET"
+        },
+        "THSWIndex": {
+          "type": "number",
+          "format": "double"
+        },
+        "UVIndex": {
+          "type": "number",
+          "format": "double"
+        },
+        "barometer": {
+          "$ref": "#/definitions/LoopBar"
+        },
+        "battery": {
+          "$ref": "#/definitions/LoopBat"
+        },
+        "dewPoint": {
+          "type": "number",
+          "format": "double"
+        },
+        "extraHumidity": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "extraTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "forecast": {
+          "type": "string"
+        },
+        "heatIndex": {
+          "type": "number",
+          "format": "double"
+        },
+        "icons": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "insideHumidity": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "insideTemperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "leafTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "leafWetness": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "outsideHumidity": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "outsideTemperature": {
+          "type": "number",
+          "format": "double"
+        },
+        "rain": {
+          "$ref": "#/definitions/LoopRain"
+        },
+        "soilMoisture": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "soilTemperature": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "solarRadiation": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sunrise": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sunset": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "wind": {
+          "$ref": "#/definitions/LoopWind"
+        },
+        "windChill": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "LoopBar": {
+      "description": "LoopBar is the barometer related readings for a Loop struct.",
+      "type": "object",
+      "properties": {
+        "altimeter": {
+          "type": "number",
+          "format": "double"
+        },
+        "seaLevel": {
+          "type": "number",
+          "format": "double"
+        },
+        "station": {
+          "type": "number",
+          "format": "double"
+        },
+        "trend": {
+          "type": "string"
+        }
+      }
+    },
+    "LoopBat": {
+      "description": "LoopBat is the console and transmitter battery readings for a Loop struct.",
+      "type": "object",
+      "properties": {
+        "consoleVoltage": {
+          "type": "number",
+          "format": "double"
+        },
+        "transmitterStatus": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "LoopET": {
+      "description": "LoopET is the evapotranspiration related readings for a Loop struct.",
+      "type": "object",
+      "properties": {
+        "lastMonth": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastYear": {
+          "type": "number",
+          "format": "double"
+        },
+        "today": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "LoopRain": {
+      "description": "LoopRain is the rain sensor related readings for a Loop struct.",
+      "type": "object",
+      "properties": {
+        "accumulation": {
+          "$ref": "#/definitions/LoopRainAccum"
+        },
+        "rate": {
+          "type": "number",
+          "format": "double"
+        },
+        "stormStartDate": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "LoopRainAccum": {
+      "description": "LoopRainAccum is the rain accumulation related readings for a LoopRain struct.",
+      "type": "object",
+      "properties": {
+        "last15Minutes": {
+          "type": "number",
+          "format": "double"
+        },
+        "last24Hours": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastHour": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastMonth": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastYear": {
+          "type": "number",
+          "format": "double"
+        },
+        "storm": {
+          "type": "number",
+          "format": "double"
+        },
+        "today": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "LoopWind": {
+      "description": "LoopWind is the wind related readings for a Loop struct.",
+      "type": "object",
+      "properties": {
+        "average": {
+          "$ref": "#/definitions/LoopWindAvgs"
+        },
+        "current": {
+          "$ref": "#/definitions/LoopWindCur"
+        },
+        "gust": {
+          "$ref": "#/definitions/LoopWindGusts"
+        }
+      }
+    },
+    "LoopWindAvgs": {
+      "description": "LoopWindAvgs is the average wind speed related readings for a LoopWind struct.",
+      "type": "object",
+      "properties": {
+        "last10MinutesSpeed": {
+          "type": "number",
+          "format": "double"
+        },
+        "last2MinutesSpeed": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "LoopWindCur": {
+      "description": "LoopWindCur is the current wind direction and speed for a LoopWind struct.",
+      "type": "object",
+      "properties": {
+        "direction": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "speed": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "LoopWindGusts": {
+      "description": "LoopWindGusts is the wind gust related readings for a LoopWind struct.",
+      "type": "object",
+      "properties": {
+        "last10MinutesDirection": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "last10MinutesSpeed": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "WrappedLoops": {
+      "title": "WrappedLoops",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/WrappedLoop"
+      }
+    },
+    "WrappedLoop": {
+      "description": "WrappedLoop is a wrapper struct for a Loop packet so Update information can be added.",
+      "type": "object",
+      "properties": {
+        "loop": {
+          "$ref": "#/definitions/Loop"
+        },
+        "update": {
+          "$ref": "#/definitions/Update"
+        }
+      }
+    },
+    "Update": {
+      "description": "Update is a struct for representing the update timestamp and sequence of a loop sample.",
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

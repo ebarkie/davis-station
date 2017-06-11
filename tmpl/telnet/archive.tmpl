@@ -1,0 +1,21 @@
+{{ if . -}}
+Trend (5 minute interval):
+
+Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Dir(D) Spd(mph) Gus(mph) Sol(wm2) UV(i)
+----------- ------- ------ ------ ------ ------ -------- -------- -------- -----
+  {{- range . }}
+{{.Timestamp | tinyTimestamp -}}
+{{- printf " %-7.3f" .Bar }}
+{{- printf " %-6.2f" .OutTemp }}
+{{- printf " %-6d" .OutHumidity }}
+{{- printf " %-6.2f" .RainAccum }}
+{{- printf " %-6d" .WindDirPrevail }}
+{{- printf " %-8d" .WindSpeedAvg }}
+{{- printf " %-8d" .WindSpeedHi }}
+{{- printf " %-8d" .SolarRad }}
+{{- printf " %-5.1f" .UVIndexAvg }}
+  {{- end }}
+----------- ------- ------ ------ ------ ------ -------- -------- -------- -----
+{{ else -}}
+No trend data available.
+{{ end -}}
