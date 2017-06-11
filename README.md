@@ -9,7 +9,8 @@ station over a Weatherlink IP, serial, or USB interface.
 Features include:
 
 * Console clock synchronization.
-* Storing archive data in a Bolt database
+* Storing archive data in a Bolt database.
+* Primitive Quality Control.
 * Pulling loop packets using HTTP GET requests.
 * Pulling archive data using HTTP GET requests.
 * Pushed archive and loop packets using HTTP Server-sent events (EventSource).
