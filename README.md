@@ -45,7 +45,7 @@ $ ./davis-station -device /dev/ttyUSB0
 See [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for endpoints.
 
 ```
-telnet wx 8023
+$ telnet wx 8023
 Trying 192.168.1.254...
 Connected to wx.
 Escape character is '^]'.
