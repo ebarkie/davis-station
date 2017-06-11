@@ -24,7 +24,7 @@ $ go generate
 $ go build
 ```
 
-See [contrib](contrib) directory for sample systemd service.
+Refer to the [contrib](contrib) directory for a sample systemd service.
 
 ## Usage
 
@@ -42,7 +42,7 @@ Usage of ./davis-station:
 $ ./davis-station -device /dev/ttyUSB0
 ```
 
-See [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for endpoints.
+Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for HTTP endpoint information.
 
 ```
 $ telnet wx 8023
