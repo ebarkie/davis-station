@@ -13,7 +13,7 @@ import (
 	"os"
 )
 
-var banner = fmt.Sprintf("Davis Instruments Weatherstation server (version %s)", version)
+var banner = fmt.Sprintf("Davis Instruments Weather station server (version %s)", version)
 
 func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")

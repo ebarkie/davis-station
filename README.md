@@ -49,7 +49,7 @@ telnet wx 8023
 Trying 192.168.1.254...
 Connected to wx.
 Escape character is '^]'.
-Davis Instruments Weatherstation server (version ab06ac1) on 192.168.1.254:8023.
+Davis Instruments Weather station server (version ab06ac1) on 192.168.1.254:8023.
 
 > help
 Command	                Argument(s)     Description
