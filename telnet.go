@@ -164,9 +164,8 @@ func telnetServer(bindAddress string, sc serverContext) {
 		Error.Fatalf("Telnet server error: %s", err.Error())
 	}
 
-	c := telnetContext(tc)
 	for {
 		conn, _ := l.Accept()
-		go c.commandPrompt(conn)
+		go tc.commandPrompt(conn)
 	}
 }
