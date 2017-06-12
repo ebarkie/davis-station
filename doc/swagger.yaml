@@ -20,7 +20,7 @@ paths:
       parameters:
         - name: begin
           description: >-
-            Begin date and time in RFC3339 format. The default is 7 days before
+            Begin date and time in RFC3339 format. The default is 1 day before
             end.
           in: query
           type: string

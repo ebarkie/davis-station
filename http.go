@@ -56,9 +56,10 @@ func (httpContext) logHandler(h http.Handler) http.HandlerFunc {
 // archive is the endpoint for serving out archive records.
 // GET /archive[?begin=2016-08-03T00:00:00Z][&end=2016-09-03T00:00:00Z]
 func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
-	// Parse 'end' and 'begin' parameters
-	var end, begin time.Time
+	// Parse and validate begin and end parameters.
+	var begin, end time.Time
 	var err error
+
 	if r.URL.Query().Get("end") != "" {
 		end, err = time.Parse(time.RFC3339, r.URL.Query().Get("end"))
 		if err != nil {
@@ -67,6 +68,7 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
+		// Default end is now.
 		end = time.Now()
 	}
 
@@ -78,16 +80,30 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		begin = end.AddDate(0, 0, -7)
+		// Default begin is 1 day before end.
+		begin = end.AddDate(0, 0, -1)
 	}
 
 	if end.Before(begin) {
 		w.Header().Set("Warning", "End timestamp precedes begin timestamp")
 		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
-	// Query archive from database and return
+	// Large durations can be very resource intensive to marshal so
+	// cap at 30 days.
+	if end.Sub(begin) > (30 * (24 * time.Hour)) {
+		w.Header().Set("Warning", "Duration exceeds maximum allowed")
+		w.WriteHeader(http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	// Query archive from database and return.
 	archive := c.ad.Get(begin, end)
+	if len(archive) < 1 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	j, _ := json.MarshalIndent(archive, "", "    ")
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(j)
