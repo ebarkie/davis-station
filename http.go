@@ -102,9 +102,8 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	j, _ := json.MarshalIndent(archive, "", "    ")
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(j)
+	json.NewEncoder(w).Encode(archive)
 }
 
 // loop is the endpoint for serving out loop samples.
@@ -119,40 +118,43 @@ func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
 	if len(c.ld.loops) < loopsMin {
 		w.Header().Set("Warning", "Not enough samples yet")
 		w.WriteHeader(http.StatusServiceUnavailable)
-	} else if time.Since(c.ld.loops[0].Update.Timestamp) > loopStaleAge {
+		return
+	}
+
+	if time.Since(c.ld.loops[0].Update.Timestamp) > loopStaleAge {
 		w.Header().Set("Warning", "Samples are too old")
 		w.WriteHeader(http.StatusServiceUnavailable)
-	} else {
-		// Figure out if request is for loops since a sequence or just for
-		// most recent loop.
-		var j []byte
-		if r.URL.Query().Get("lastSequence") != "" {
-			seq, _ := strconv.ParseInt(r.URL.Query().Get("lastSequence"), 10, 64)
+		return
+	}
 
-			// There are no sequence gaps so it's simple subtraction to
-			// determine the end index.  A few safeguards have to be added
-			// though:
-			//
-			// If the requested sequence is ahead of the server then return
-			// nothing.
-			//
-			// If the request sequence is so far back that it's been purged
-			// then return everything.
-			endIndex := int(c.ld.loops[0].Update.Sequence - seq)
-			if endIndex < 1 {
-				j, _ = json.Marshal(nil)
-			} else {
-				if endIndex > len(c.ld.loops) {
-					endIndex = len(c.ld.loops)
-				}
-				j, _ = json.MarshalIndent(c.ld.loops[0:endIndex], "", "    ")
-			}
+	// Figure out if request is for loops since a sequence or just for
+	// most recent loop.
+	j := json.NewEncoder(w)
+	if r.URL.Query().Get("lastSequence") != "" {
+		seq, _ := strconv.ParseInt(r.URL.Query().Get("lastSequence"), 10, 64)
+
+		// There are no sequence gaps so it's simple subtraction to
+		// determine the end index.  A few safeguards have to be added
+		// though:
+		//
+		// If the requested sequence is ahead of the server then return
+		// nothing.
+		//
+		// If the request sequence is so far back that it's been purged
+		// then return everything.
+		endIndex := int(c.ld.loops[0].Update.Sequence - seq)
+		if endIndex < 1 {
+			w.WriteHeader(http.StatusNoContent)
 		} else {
-			j, _ = json.MarshalIndent(c.ld.loops[0], "", "    ")
+			if endIndex > len(c.ld.loops) {
+				endIndex = len(c.ld.loops)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			j.Encode(c.ld.loops[0:endIndex])
 		}
-
+	} else {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(j)
+		j.Encode(c.ld.loops[0])
 	}
 }
 
