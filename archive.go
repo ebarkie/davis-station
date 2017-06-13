@@ -65,12 +65,22 @@ func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []weatherlink
 			var a weatherlink.Archive
 			for k, v := c.Seek(min); k != nil && bytes.Compare(k, max) <= 0; k, v = c.Next() {
 				json.Unmarshal(v, &a)
-				archive = append([]weatherlink.Archive{a}, archive...)
+				// We want the most recent data first so it would make sense
+				// to prepend here but it's MUCH faster to append and then
+				// reverse.
+				archive = append(archive, a)
 			}
 		}
 
 		return nil
 	})
+
+	// Reverse archive record slice so most recent data is first.
+	for i := 0; i < len(archive)/2; i++ {
+		j := len(archive) - 1 - i
+		archive[i], archive[j] = archive[j], archive[i]
+	}
+
 	return
 }
 
