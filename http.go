@@ -68,7 +68,6 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Default end is now.
 		end = time.Now()
 	}
 
@@ -80,7 +79,6 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		// Default begin is 1 day before end.
 		begin = end.AddDate(0, 0, -1)
 	}
 
