@@ -37,10 +37,7 @@ func (l *loopBuffer) loops() (w []WrappedLoop) {
 	j := l.cur
 	for i := 0; i < l.size; i++ {
 		w = append(w, l.buf[j])
-		j--
-		if j < 0 {
-			j = loopsMax - 1
-		}
+		j = (j - 1 + loopsMax) % loopsMax
 	}
 
 	return

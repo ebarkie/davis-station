@@ -4,8 +4,6 @@
 
 package main
 
-// Weather station data archive storage.
-
 import (
 	"bytes"
 	"encoding/json"
