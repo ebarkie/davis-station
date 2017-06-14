@@ -3,8 +3,8 @@
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 [![Build Status](https://travis-ci.org/ebarkie/davis-station.svg?branch=master)](https://travis-ci.org/ebarkie/davis-station)
 
-This uses the weatherlink package to talk to a Davis weather
-station over a Weatherlink IP, serial, or USB interface.
+This uses the weatherlink package to create a modern Personal
+Weather Station.
 
 Features include:
 
