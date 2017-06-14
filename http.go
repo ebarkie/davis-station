@@ -109,19 +109,18 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 // loop is the endpoint for serving out loop samples.
 // GET /loop[?lastSequence=#]
 func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
-	c.ld.RLock()
-	defer c.ld.RUnlock()
+	loops := c.lb.loops()
 
 	// If there aren't enough samples (the server just started) or
 	// there were no recent updates then send a HTTP service temporarily
 	// unavailable response.
-	if len(c.ld.loops) < loopsMin {
+	if len(loops) < loopsMin {
 		w.Header().Set("Warning", "Not enough samples yet")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 
-	if time.Since(c.ld.loops[0].Update.Timestamp) > loopStaleAge {
+	if time.Since(loops[0].Update.Timestamp) > loopStaleAge {
 		w.Header().Set("Warning", "Samples are too old")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
@@ -142,19 +141,19 @@ func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
 		//
 		// If the request sequence is so far back that it's been purged
 		// then return everything.
-		endIndex := int(c.ld.loops[0].Update.Sequence - seq)
+		endIndex := int(loops[0].Update.Seq - seq)
 		if endIndex < 1 {
 			w.WriteHeader(http.StatusNoContent)
 		} else {
-			if endIndex > len(c.ld.loops) {
-				endIndex = len(c.ld.loops)
+			if endIndex > len(loops) {
+				endIndex = len(loops)
 			}
 			w.Header().Set("Content-Type", "application/json")
-			j.Encode(c.ld.loops[0:endIndex])
+			j.Encode(loops[0:endIndex])
 		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")
-		j.Encode(c.ld.loops[0])
+		j.Encode(loops[0])
 	}
 }
 

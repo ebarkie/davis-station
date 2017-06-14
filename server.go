@@ -5,29 +5,22 @@
 package main
 
 import (
-	"sync"
 	"time"
 
 	"github.com/ebarkie/weatherlink"
 )
 
 const (
-	archiveMax   = 5 * 512         // Matches memory in Vantage Pro2 console
 	loopsMin     = 3               // Minimum number of samples received before responding
 	loopsMax     = 2 * 135         // Store up to about 10 minutes of loop sample history
 	loopStaleAge = 5 * time.Minute // Stop responding if most recent loop sample was > 5 minutes
 )
 
-type loopData struct {
-	loops        []WrappedLoop // Loops slice that gets served to HTTP GET requests
-	sync.RWMutex               // Mutex to coordinate adding and reading loops
-}
-
 // serverContext contains a shared context that is made available to
 // the HTTP endpoint handlers and telnet connections.
 type serverContext struct {
 	ad        *ArchiveData
-	ld        *loopData
+	lb        *loopBuffer
 	eb        *eventBroker
 	startTime time.Time
 }
@@ -43,7 +36,7 @@ type WrappedLoop struct {
 // and sequence of a loop sample.
 type Update struct {
 	Timestamp time.Time `json:"timestamp"`
-	Sequence  int64     `json:"sequence"`
+	Seq       int64     `json:"sequence"`
 }
 
 func server(bindAddress string, weatherStationAddress string, dbFile string) {
@@ -54,7 +47,7 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 	defer ad.Close()
 	sc := serverContext{
 		ad: &ad,
-		ld: &loopData{},
+		lb: &loopBuffer{},
 		eb: &eventBroker{
 			events: make(chan event, 8),
 			subs:   make(map[chan event]string),
@@ -64,9 +57,10 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 		startTime: time.Now(),
 	}
 
-	// Buffer archive channel to max all of the memory can be downloaded
-	// quickly without waiting for database syncs.
-	archive := make(chan weatherlink.Archive, archiveMax)
+	// The archive channel is buffered to the maximum records a Vantage
+	// Pro 2 console can hold in memory.  This can speed up large
+	// downloads which would otherwise be I/O bound by database writes.
+	archive := make(chan weatherlink.Archive, 5*512)
 	loops := make(chan weatherlink.Loop, 8)
 
 	// HTTP server
@@ -152,22 +146,16 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 				continue
 			}
 
-			// Update HTTP server loop slice
-			sc.ld.Lock()
+			// Wrap with sequence and timestamp
 			wrappedLoop := WrappedLoop{}
 			wrappedLoop.Update.Timestamp = time.Now()
-			wrappedLoop.Update.Sequence = seq
+			wrappedLoop.Update.Seq = seq
 			wrappedLoop.Loop = l
-			// Delete oldest sample at the end of the slice if we've reached
-			// reached the max size for loops.
-			if len(sc.ld.loops) >= loopsMax {
-				sc.ld.loops = sc.ld.loops[0 : len(sc.ld.loops)-1]
-			}
-			// Add the latest sample to the front of the slice
-			sc.ld.loops = append([]WrappedLoop{wrappedLoop}, sc.ld.loops...)
-			sc.ld.Unlock()
 
-			// Update Server-sent events broker
+			// Update loop buffer
+			sc.lb.add(wrappedLoop)
+
+			// Publish to Server-sent events broker
 			sc.eb.publish(event{event: "loop", data: wrappedLoop})
 		}
 	}()

@@ -108,9 +108,7 @@ func (c telnetContext) help(conn io.Writer) {
 }
 
 func (c telnetContext) loop(conn io.Writer) {
-	c.ld.RLock()
-	c.execTemplate(conn, "loop.tmpl", c.ld.loops)
-	c.ld.RUnlock()
+	c.execTemplate(conn, "loop.tmpl", c.lb.loops())
 }
 
 func (telnetContext) readLine(conn io.Reader) (string, error) {
