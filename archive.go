@@ -20,18 +20,16 @@ type ArchiveData struct {
 }
 
 // Add adds an archive record to the database.
-func (ad ArchiveData) Add(a weatherlink.Archive) (err error) {
-	err = ad.db.Update(func(tx *bolt.Tx) (err error) {
+func (ad ArchiveData) Add(a weatherlink.Archive) error {
+	return ad.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("archive"))
 		if err != nil {
-			return
+			return err
 		}
 
 		encoded, _ := json.Marshal(a)
-		err = b.Put([]byte(a.Timestamp.In(time.UTC).Format(time.RFC3339)), encoded)
-		return
+		return b.Put([]byte(a.Timestamp.In(time.UTC).Format(time.RFC3339)), encoded)
 	})
-	return
 }
 
 // Last returns the timestamp of the most recent archive record in the database.
