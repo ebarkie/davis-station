@@ -25,8 +25,8 @@ type telnetContext struct {
 
 func (c telnetContext) archive(conn io.Writer, h uint) {
 	d := time.Duration(h) * time.Hour
-	archive := c.ad.Get(time.Now().Add(-d), time.Now())
-	c.execTemplate(conn, "archive.tmpl", archive)
+	ac := c.ad.NewGet(time.Now().Add(-d), time.Now())
+	c.execTemplate(conn, "archive.tmpl", ac)
 }
 
 func (c telnetContext) commandPrompt(conn net.Conn) {

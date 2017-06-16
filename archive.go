@@ -50,38 +50,60 @@ func (ad ArchiveData) Last() (t time.Time) {
 	return
 }
 
-// Get retrieves the archive records from the database for a specified period.
+// Get returns the requested range of archive records as a slice in descending
+// order.
 func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []weatherlink.Archive) {
-	ad.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("archive"))
-		if b != nil {
-			c := b.Cursor()
-
-			min := []byte(begin.In(time.UTC).Format(time.RFC3339))
-			max := []byte(end.In(time.UTC).Format(time.RFC3339))
-
-			// Find starting position.
-			if k, _ := c.Seek(max); k == nil {
-				// If max is not found then use the last key.
-				max, _ = c.Last()
-			} else if !bytes.Equal(k, max) {
-				// If Seek() does not get an exact match it returns
-				// the next key.  This goes beyond max so we really
-				// want to start at the key before it.
-				max, _ = c.Prev()
-			}
-
-			var a weatherlink.Archive
-			for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
-				json.Unmarshal(v, &a)
-				archive = append(archive, a)
-			}
-		}
-
-		return nil
-	})
+	ac := ad.NewGet(begin, end)
+	for a := range ac {
+		archive = append(archive, a)
+	}
 
 	return
+}
+
+// NewGet creates a channel and sends the requested range of archive records to it
+// in descending order.
+func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan weatherlink.Archive {
+	ac := make(chan weatherlink.Archive)
+
+	go func() {
+		defer close(ac)
+
+		ad.db.View(func(tx *bolt.Tx) error {
+			b := tx.Bucket([]byte("archive"))
+			if b != nil {
+				c := b.Cursor()
+
+				min := []byte(begin.In(time.UTC).Format(time.RFC3339))
+				max := []byte(end.In(time.UTC).Format(time.RFC3339))
+
+				// Find starting position.
+				if k, _ := c.Seek(max); k == nil {
+					// If max is not found then use the last key.
+					max, _ = c.Last()
+				} else if !bytes.Equal(k, max) {
+					// If Seek() does not get an exact match it returns
+					// the next key.  This goes beyond max so we really
+					// want to start at the key before it.
+					max, _ = c.Prev()
+				}
+
+				var a weatherlink.Archive
+				for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
+					err := json.Unmarshal(v, &a)
+					if err != nil {
+						Error.Printf("Unable to unmarshal archive record: %s", k)
+						continue
+					}
+					ac <- a
+				}
+			}
+
+			return nil
+		})
+	}()
+
+	return ac
 }
 
 // OpenArchive opens up the archive database.
