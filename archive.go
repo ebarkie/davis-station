@@ -42,7 +42,7 @@ func (ad ArchiveData) Last() (t time.Time) {
 			c := b.Cursor()
 			k, _ := c.Last()
 			t, _ = time.Parse(time.RFC3339, string(k))
-			t = t.In(time.Now().Location())
+			t = t.Local()
 		}
 		return nil
 	})
