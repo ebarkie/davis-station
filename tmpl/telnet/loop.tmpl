@@ -1,11 +1,10 @@
 {{ if . -}}
   {{ $l := index . 0 }}
+Weather conditions at {{ $l.Update.Timestamp }}.
+Sunrise at {{ $l.Loop.Sunrise | tinyTime }}, sunset at {{ $l.Loop.Sunset | tinyTime }}.
+{{ $l.Loop.Forecast }}
 
-  {{- with $l.Update -}}
-Weather conditions at {{ .Timestamp }}
-
-Sequence {{.Seq}}:
-  {{- end }}
+Observation sequence {{ $l.Update.Seq}}:
 
   {{- with $l.Loop }}
 
@@ -25,8 +24,6 @@ Sequence {{.Seq}}:
   Solar Radiation              {{ printf "%d" .SolarRad }} watts per meter squared
   UV                           {{ printf "%.1f" .UVIndex }} index
   ---------------------------- -------------------------------------------------
-
-  Forecast: {{ .Forecast }}
   {{ end -}}
 {{ else -}}
   Latest observation not available.

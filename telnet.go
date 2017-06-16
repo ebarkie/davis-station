@@ -125,9 +125,13 @@ func (c telnetContext) execTemplate(conn io.Writer, name string, data interface{
 	}
 }
 
-// templateTinyTime formats a time to string as 01/02 15:04.  It is useful when
-// printing rows where width space is limited.
-func (telnetContext) templateTinyTime(t time.Time) string {
+// tempTinyTime formats a time to string as 15:04.
+func (telnetContext) tempTinyTime(t time.Time) string {
+	return fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())
+}
+
+// tempTinyTimestamp formats a time to string as 01/02 15:04.
+func (telnetContext) tempTinyTimestamp(t time.Time) string {
 	return fmt.Sprintf("%02d/%02d %02d:%02d", t.Month(), t.Day(), t.Hour(), t.Minute())
 }
 
@@ -146,7 +150,8 @@ func telnetServer(bindAddress string, sc serverContext) {
 
 	// Parse templates
 	fmap := template.FuncMap{
-		"tinyTimestamp": tc.templateTinyTime,
+		"tinyTime":      tc.tempTinyTime,
+		"tinyTimestamp": tc.tempTinyTimestamp,
 	}
 	if t, err := template.New("").Funcs(fmap).ParseGlob("tmpl/telnet/*.tmpl"); err == nil {
 		tc.templates = t
