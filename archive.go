@@ -60,24 +60,26 @@ func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []weatherlink
 			min := []byte(begin.In(time.UTC).Format(time.RFC3339))
 			max := []byte(end.In(time.UTC).Format(time.RFC3339))
 
+			// Find starting position.
+			if k, _ := c.Seek(max); k == nil {
+				// If max is not found then use the last key.
+				max, _ = c.Last()
+			} else if !bytes.Equal(k, max) {
+				// If Seek() does not get an exact match it returns
+				// the next key.  This goes beyond max so we really
+				// want to start at the key before it.
+				max, _ = c.Prev()
+			}
+
 			var a weatherlink.Archive
-			for k, v := c.Seek(min); k != nil && bytes.Compare(k, max) <= 0; k, v = c.Next() {
+			for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
 				json.Unmarshal(v, &a)
-				// The most recent data should be first so it would make sense
-				// to prepend but it's MUCH faster to append here and then
-				// reverse the entire slice.
 				archive = append(archive, a)
 			}
 		}
 
 		return nil
 	})
-
-	// Reverse archive record slice order.
-	for i := 0; i < len(archive)/2; i++ {
-		j := len(archive) - 1 - i
-		archive[i], archive[j] = archive[j], archive[i]
-	}
 
 	return
 }
