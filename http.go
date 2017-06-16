@@ -88,8 +88,22 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Large durations can be very resource intensive to marshal so
+	// cap at 30 days.
+	if end.Sub(begin) > (30 * (24 * time.Hour)) {
+		w.Header().Set("Warning", "Duration exceeds maximum allowed")
+		w.WriteHeader(http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	// Query archive from database and return.
+	archive := c.ad.Get(begin, end)
+	if len(archive) < 1 {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(c.ad.Get(begin, end))
+	json.NewEncoder(w).Encode(archive)
 }
 
 // loop is the endpoint for serving out loop samples.
