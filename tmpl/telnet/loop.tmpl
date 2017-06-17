@@ -1,28 +1,27 @@
-{{ if . -}}
-  {{ $l := index . 0 }}
-Weather conditions at {{ $l.Update.Timestamp }}.
-Sunrise at {{ $l.Loop.Sunrise | tinyTime }}, sunset at {{ $l.Loop.Sunset | tinyTime }}.
-{{ $l.Loop.Forecast }}
+{{if . -}}
+  {{$l := index . 0}}
+Weather conditions at {{$l.Update.Timestamp}}.
+Sunrise at {{$l.Loop.Sunrise | tinyTime}}, sunset at {{$l.Loop.Sunset | tinyTime}}.
+{{$l.Loop.Forecast}}
 
-Observation sequence {{ $l.Update.Seq}}:
+Observation sequence {{$l.Update.Seq}}:
 
-  {{- with $l.Loop }}
+  {{- with $l.Loop}}
 
   Sensor                       Value
   ---------------------------- -------------------------------------------------
-  Barometer                    {{ printf "%.3f" .Bar.Station }} inches
-  Temperature                  {{ printf "%.2f" .OutTemp }} degrees Fahrenheit
-  Humidity                     {{ printf "%d" .OutHumidity }} percent
-  Dew point                    {{ printf "%.2f" .DewPoint }} degrees Fahrenheit
+  Barometer                    {{printf "%.3f" .Bar.Station}} inches
+  Temperature                  {{printf "%.2f" .OutTemp}} degrees Fahrenheit
+  Humidity                     {{printf "%d" .OutHumidity}} percent
+  Dew point                    {{printf "%.2f" .DewPoint}} degrees Fahrenheit
 
-  Wind Direction               {{ printf "%d" .Wind.Cur.Dir }} degrees
-  Wind Speed                   {{ printf "%d" .Wind.Cur.Speed }} miles per hour
+  Wind                         {{printf "%d degrees %s at %d" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) .Wind.Cur.Speed}} miles per hour
 
-  Rain rate                    {{ printf "%.2f" .Rain.Rate }} inches per hour
-  Rain today                   {{ printf "%.2f" .Rain.Accum.Today }} inches
+  Rain rate                    {{printf "%.2f" .Rain.Rate}} inches per hour
+  Rain today                   {{printf "%.2f" .Rain.Accum.Today}} inches
 
-  Solar Radiation              {{ printf "%d" .SolarRad }} watts per meter squared
-  UV                           {{ printf "%.1f" .UVIndex }} index
+  Solar Radiation              {{printf "%d" .SolarRad}} watts per meter squared
+  UV                           {{printf "%.1f" .UVIndex}} index
   ---------------------------- -------------------------------------------------
   {{ end -}}
 {{ else -}}

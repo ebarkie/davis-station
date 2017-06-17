@@ -125,6 +125,22 @@ func (c telnetContext) execTemplate(conn io.Writer, name string, data interface{
 	}
 }
 
+// tempDegToDir converts a direction to a string.
+func (telnetContext) tempDegToDir(deg int) string {
+	var dirs = []string{
+		"N", "NNE", "NE",
+		"ENE", "E", "ESE",
+		"SE", "SSE", "S", "SSW", "SW",
+		"WSW", "W", "WNW", "NW", "NNW"}
+
+	if deg < 0 {
+		deg = 0
+	}
+	i := uint((float32(deg)/22.5)+0.5) % 16
+
+	return dirs[i]
+}
+
 // tempTinyTime formats a time to string as 15:04.
 func (telnetContext) tempTinyTime(t time.Time) string {
 	return fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())
@@ -150,6 +166,7 @@ func telnetServer(bindAddress string, sc serverContext) {
 
 	// Parse templates
 	fmap := template.FuncMap{
+		"degToDir":      tc.tempDegToDir,
 		"tinyTime":      tc.tempTinyTime,
 		"tinyTimestamp": tc.tempTinyTimestamp,
 	}
