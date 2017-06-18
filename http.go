@@ -161,19 +161,22 @@ func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
 // events.
 // GET /events
 func (c httpContext) events(w http.ResponseWriter, r *http.Request) {
+	// See Server-sent-event specification:
+	// https://en.wikipedia.org/wiki/Server-sent_events
+
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	incomingEvents := c.eb.subscribe(r.RemoteAddr)
-	defer c.eb.unsubscribe(incomingEvents)
+	inEvents := c.eb.subscribe(r.RemoteAddr)
+	defer c.eb.unsubscribe(inEvents)
 
 	for {
 		select {
 		case <-w.(http.CloseNotifier).CloseNotify():
 			// Client closed the connection
 			return
-		case e := <-incomingEvents:
+		case e := <-inEvents:
 			fmt.Fprintf(w, "event: %s\n", e.event)
 			r, _ := json.Marshal(e.data)
 			fmt.Fprintf(w, "data: %s\n\n", r)

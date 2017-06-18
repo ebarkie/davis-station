@@ -26,7 +26,7 @@ type telnetContext struct {
 func (c telnetContext) archive(conn io.Writer, h uint) {
 	d := time.Duration(h) * time.Hour
 	ac := c.ad.NewGet(time.Now().Add(-d), time.Now())
-	c.execTemplate(conn, "archive.tmpl", ac)
+	c.execTemplate(conn, "archive", ac)
 }
 
 func (c telnetContext) commandPrompt(conn net.Conn) {
@@ -37,7 +37,7 @@ func (c telnetContext) commandPrompt(conn net.Conn) {
 
 commandLoop:
 	for {
-		fmt.Fprintf(conn, "\n> ")
+		c.execTemplate(conn, "prompt", nil)
 		in, err := c.readLine(conn)
 		if err != nil {
 			// Client closed the connection
@@ -47,8 +47,8 @@ commandLoop:
 		tokens := strings.Split(strings.TrimSpace(in), " ")
 		cmd := tokens[0]
 		args := tokens[1:]
-
 		Debug.Printf("Telnet command from %s: %s%s", conn.RemoteAddr(), cmd, args)
+
 		switch strings.ToUpper(cmd) {
 		case "":
 			// NOOP
@@ -63,11 +63,9 @@ commandLoop:
 				fmt.Fprintf(conn, "%s: %s invalid range\n", cmd, args[0])
 			}
 		case "COND", "LOOP":
-			c.loop(conn)
+			c.loop(conn, false)
 		case "DATE", "TIME":
 			fmt.Fprintln(conn, time.Now())
-		case "DEBUG":
-			c.debug(conn)
 		case "LOGOFF", "LOGOUT", "QUIT", "\x04":
 			fmt.Fprintln(conn, "Bye!")
 			break commandLoop
@@ -77,6 +75,19 @@ commandLoop:
 			c.uptime(conn)
 		case "VER", "VERS":
 			fmt.Fprintln(conn, version)
+		case "WATCH":
+			if len(args) == 1 {
+				switch strings.ToUpper(args[0]) {
+				case "COND", "LOOP":
+					c.loop(conn, true)
+				case "DEBUG":
+					c.debug(conn)
+				default:
+					fmt.Fprintf(conn, "%s: %s invalid argument\n", cmd, args[0])
+				}
+			} else {
+				fmt.Fprintf(conn, "%s: an argument is required\n", cmd)
+			}
 		case "WHOAMI":
 			fmt.Fprintln(conn, conn.RemoteAddr())
 		default:
@@ -104,11 +115,30 @@ func (c telnetContext) debug(conn io.ReadWriter) {
 }
 
 func (c telnetContext) help(conn io.Writer) {
-	c.execTemplate(conn, "help.tmpl", nil)
+	c.execTemplate(conn, "help", nil)
 }
 
-func (c telnetContext) loop(conn io.Writer) {
-	c.execTemplate(conn, "loop.tmpl", c.lb.loops())
+func (c telnetContext) loop(conn net.Conn, watch bool) {
+	l := c.lb.loops()
+	if len(l) > 0 {
+		c.execTemplate(conn, "loop", l[0])
+	}
+
+	if watch {
+		inEvents := c.eb.subscribe(conn.RemoteAddr().String())
+		defer c.eb.unsubscribe(inEvents)
+
+		go func() {
+			for e := range inEvents {
+				if e.event == "loop" {
+					c.execTemplate(conn, "loop", e.data)
+					fmt.Fprintf(conn, "\nWatching conditions.  Press <ENTER> to end.")
+				}
+			}
+		}()
+
+		c.readLine(conn)
+	}
 }
 
 func (telnetContext) readLine(conn io.Reader) (string, error) {
@@ -117,16 +147,15 @@ func (telnetContext) readLine(conn io.Reader) (string, error) {
 }
 
 func (c telnetContext) execTemplate(conn io.Writer, name string, data interface{}) {
-	if t := c.templates.Lookup(name); t != nil {
-		t.Execute(conn, data)
-	} else {
+	err := c.templates.ExecuteTemplate(conn, name, data)
+	if err != nil {
 		Error.Printf("Telnet template %s is missing", name)
 		fmt.Fprintln(conn, "Content not available.")
 	}
 }
 
-// tempDegToDir converts a direction to a string.
-func (telnetContext) tempDegToDir(deg int) string {
+// degToDir converts a direction to a string.
+func (telnetContext) degToDir(deg int) string {
 	var dirs = []string{
 		"N", "NNE", "NE",
 		"ENE", "E", "ESE",
@@ -139,16 +168,6 @@ func (telnetContext) tempDegToDir(deg int) string {
 	i := uint((float32(deg)/22.5)+0.5) % 16
 
 	return dirs[i]
-}
-
-// tempTinyTime formats a time to string as 15:04.
-func (telnetContext) tempTinyTime(t time.Time) string {
-	return fmt.Sprintf("%02d:%02d", t.Hour(), t.Minute())
-}
-
-// tempTinyTimestamp formats a time to string as 01/02 15:04.
-func (telnetContext) tempTinyTimestamp(t time.Time) string {
-	return fmt.Sprintf("%02d/%02d %02d:%02d", t.Month(), t.Day(), t.Hour(), t.Minute())
 }
 
 func (telnetContext) uname(conn net.Conn) {
@@ -166,9 +185,16 @@ func telnetServer(bindAddress string, sc serverContext) {
 
 	// Parse templates
 	fmap := template.FuncMap{
-		"degToDir":      tc.tempDegToDir,
-		"tinyTime":      tc.tempTinyTime,
-		"tinyTimestamp": tc.tempTinyTimestamp,
+		"degToDir": tc.degToDir,
+		"sunTime": func(t time.Time) string {
+			return t.Format("15:04")
+		},
+		"archiveTime": func(t time.Time) string {
+			return t.Format("01/02 15:04")
+		},
+		"longTime": func(t time.Time) string {
+			return t.Format("Monday, January 2 2006 at 15:04:05")
+		},
 	}
 	if t, err := template.New("").Funcs(fmap).ParseGlob("tmpl/telnet/*.tmpl"); err == nil {
 		tc.templates = t

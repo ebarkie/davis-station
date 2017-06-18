@@ -1,29 +1,29 @@
-{{if . -}}
-  {{$l := index . 0}}
-Weather conditions at {{$l.Update.Timestamp}}.
-Sunrise at {{$l.Loop.Sunrise | tinyTime}}, sunset at {{$l.Loop.Sunset | tinyTime}}.
-{{$l.Loop.Forecast}}
+{{/* Template for displaying loop packets */}}
 
-Observation sequence {{$l.Update.Seq}}:
+{{ define "loop" }}
+{{ template "clear" -}}
+Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) .Update.Seq }}
+                      Sunrise at {{ .Loop.Sunrise | sunTime }}, sunset at {{ .Loop.Sunset | sunTime }}
 
-  {{- with $l.Loop}}
+   Forecast: {{ .Loop.Forecast }}
 
-  Sensor                       Value
-  ---------------------------- -------------------------------------------------
-  Barometer                    {{printf "%.3f" .Bar.Station}} inches
-  Temperature                  {{printf "%.2f" .OutTemp}} degrees Fahrenheit
-  Humidity                     {{printf "%d" .OutHumidity}} percent
-  Dew point                    {{printf "%.2f" .DewPoint}} degrees Fahrenheit
+{{ with .Loop -}}
+{{ printf "  Barometer: %-6.3fin %s" .Bar.Station .Bar.Trend }}
 
-  Wind                         {{printf "%d degrees %s at %d" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) .Wind.Cur.Speed}} miles per hour
+{{ printf "Temperature: %-6.2f°F  " .OutTemp }}
+{{- printf "   Humidity: %-3d%%    " .OutHumidity }}
+{{- printf "  Dew Point: %-6.2f°F  " .DewPoint }}
+{{ printf " Heat Index: %-6.2f°F  " .HeatIndex }}
+{{ printf " Wind Chill: %-6.2f°F  " .WindChill }}
 
-  Rain rate                    {{printf "%.2f" .Rain.Rate}} inches per hour
-  Rain today                   {{printf "%.2f" .Rain.Accum.Today}} inches
+{{ printf "  Solar Rad: %-4dwm/2  " .SolarRad }}
+{{- printf "   UV Index: %-3.1f    " .UVIndex }}
+{{- printf "    ET Today: %-3.1f   "  .ET.Today }}
 
-  Solar Radiation              {{printf "%d" .SolarRad}} watts per meter squared
-  UV                           {{printf "%.1f" .UVIndex}} index
-  ---------------------------- -------------------------------------------------
-  {{ end -}}
-{{ else -}}
-  Latest observation not available.
+{{ printf " Rain Today: %-4.2fin  " .Rain.Accum.Today }}
+{{- printf "         Rate: %-4.2fin/h" .Rain.Rate }}
+
+{{ printf "       Wind: %-3d° %-3s at %-3dmph" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) .Wind.Cur.Speed }}
+{{ printf "    Gusting: %-3d° %-3s at %-3.0fmph" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir) .Wind.Gust.Last10MinSpeed }}
 {{ end -}}
+{{ end }}

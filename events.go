@@ -4,12 +4,9 @@
 
 package main
 
-// See Server-sent-event specification:
-// https://en.wikipedia.org/wiki/Server-sent_events
-
 type eventBroker struct {
-	events chan event            // New events that will be broacast to all SSE clients
-	subs   map[chan event]string // SSE subscriber map as [channel] = address:port
+	events chan event            // New events that will be broacast to all subscribers
+	subs   map[chan event]string // Subscriber map as [channel] = address:port
 	sub    chan eventSub         // Subscribe requests pending add to map
 	unsub  chan eventSub         // Unsubscribe requests pending removal from map
 }
@@ -24,20 +21,19 @@ type event struct {
 	data  interface{} // Either weatherlink.Archive or WrappedLoop
 }
 
-// subscribe registers a client to receive SSE events.
+// subscribe registers a client to receive events.
 func (eb eventBroker) subscribe(name string) chan event {
 	c := make(chan event)
 	eb.sub <- eventSub{name: name, events: c}
 	return c
 }
 
-// unsubscribe removes a client that was previously receiving SSE
-// events.
+// unsubscribe removes a client that was previously receiving events.
 func (eb eventBroker) unsubscribe(c chan event) {
 	eb.unsub <- eventSub{events: c}
 }
 
-// publish sends a new SSE event to subscribers.
+// publish sends a new event to subscribers.
 func (eb eventBroker) publish(e event) {
 	eb.events <- e
 }
@@ -49,9 +45,9 @@ func eventsBroker(eb *eventBroker) {
 		select {
 		case c := <-eb.sub:
 			eb.subs[c.events] = c.name
-			Debug.Printf("HTTP-SSE connection from %s opened", c.name)
+			Debug.Printf("Events connection from %s opened", c.name)
 		case c := <-eb.unsub:
-			Debug.Printf("HTTP-SSE connection from %s closed", eb.subs[c.events])
+			Debug.Printf("Events connection from %s closed", eb.subs[c.events])
 			delete(eb.subs, c.events)
 		case e := <-eb.events:
 			for c, name := range eb.subs {
@@ -60,7 +56,7 @@ func eventsBroker(eb *eventBroker) {
 				select {
 				case c <- e:
 				default:
-					Warn.Printf("HTTP-SEE connection from %s is dropping events", name)
+					Warn.Printf("Events connection from %s is dropping events", name)
 				}
 			}
 		}
