@@ -60,12 +60,13 @@ ARCHIVES, TREND         [h=2]           Show last h hours of observations
 COND, LOOP                              Show detailed latest observation
                                         information
 DATE, TIME                              Show current date and time
-DEBUG                                   Watch debug log messages
 HELP                                    Show this help information
 LOGOFF, LOGOUT, QUIT                    Gracefully close the connection
 UNAME                                   Show server information
 UPTIME                                  Show server uptime
 VER, VERS                               Show server version
+WATCH                   <cond|loop|     Watch continuously
+                         debug>
 WHOAMI                                  Show client source IP address and
                                         port
 
