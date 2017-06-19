@@ -31,17 +31,17 @@ func (c telnetContext) archive(conn io.Writer, h uint) {
 
 func (c telnetContext) commandPrompt(conn net.Conn) {
 	defer conn.Close()
+	defer Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
 
 	Debug.Printf("Telnet connection from %s opened", conn.RemoteAddr())
 	c.uname(conn)
 
-commandLoop:
 	for {
 		c.tmpl(conn, "prompt", nil)
 		in, err := c.readLine(conn)
 		if err != nil {
 			// Client closed the connection
-			break
+			return
 		}
 
 		tokens := strings.Split(strings.TrimSpace(in), " ")
@@ -68,7 +68,7 @@ commandLoop:
 			c.time(conn)
 		case "LOGOFF", "LOGOUT", "QUIT", "\x04":
 			c.quit(conn)
-			break commandLoop
+			return
 		case "UNAME":
 			c.uname(conn)
 		case "UPTIME":
@@ -94,8 +94,6 @@ commandLoop:
 			fmt.Fprintf(conn, "%s: command not found.\n", cmd)
 		}
 	}
-
-	Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
 }
 
 func (c telnetContext) debug(conn io.ReadWriter) {
