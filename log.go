@@ -8,10 +8,8 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"net"
 	"os"
 	"sync"
-	"time"
 )
 
 // logger wraps the standard Go logger with our own io.Writer
@@ -67,11 +65,6 @@ func (l *logger) Write(p []byte) (n int, err error) {
 	defer l.RUnlock()
 
 	for _, w := range l.writers {
-		// Prevent hung telnet debug sessions from blocking all logging
-		switch w.(type) {
-		case net.Conn:
-			w.(net.Conn).SetWriteDeadline(time.Now().Add(100 * time.Millisecond))
-		}
 		n, err = w.Write(p)
 		if (err != nil) || (n != len(p)) {
 			err = io.ErrShortWrite

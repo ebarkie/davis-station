@@ -55,7 +55,7 @@ func (c telnetCtx) readLine() (string, error) {
 func (c telnetCtx) tmpl(name string, data interface{}) {
 	err := c.templates.ExecuteTemplate(c.conn, name, data)
 	if err != nil {
-		Error.Printf("Telnet template %s is missing", name)
+		Error.Printf("Template %s error: %s", name, err.Error())
 		fmt.Fprintln(c.conn, "Content not available.")
 	}
 }
