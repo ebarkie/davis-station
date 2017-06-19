@@ -2,7 +2,7 @@
 {{ if . -}}
 Trend (5 minute interval):
 
-Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm2) UV(i)
+Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm²) UV(i)
 ----------- ------- ------ ------ ------ -------------- -------- -----
   {{- range . }}
 {{ .Timestamp | archiveTime -}}

@@ -73,7 +73,7 @@ WHOAMI                                  Show client source IP address and
 > trend 1
 Trend (5 minute interval):
 
-Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm2) UV(i)
+Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm²) UV(i)
 ----------- ------- ------ ------ ------ -------------- -------- -----
 06/18 23:15 29.938  78.30  84     0.00   E   at 2/6     0        0.0  
 06/18 23:10 29.939  78.30  84     0.00   SE  at 1/7     0        0.0  
@@ -101,7 +101,7 @@ Temperature: 78.30 °F     Humidity: 84 %      Dew Point: 73.00 °F
  Heat Index: 82.00 °F
  Wind Chill: 78.00 °F
 
-  Solar Rad: 0   wm/2     UV Index: 0.0        ET Today: 0.1
+  Solar Rad: 0   w/m²     UV Index: 0.0        ET Today: 0.1
 
  Rain Today: 0.10in           Rate: 0.00in/h
 

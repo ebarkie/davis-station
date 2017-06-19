@@ -14,7 +14,7 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) 
 {{ printf " Heat Index: %-6.2f°F" .HeatIndex }}
 {{ printf " Wind Chill: %-6.2f°F" .WindChill }}
 
-{{ printf "  Solar Rad: %-4dwm/2  " .SolarRad }}
+{{ printf "  Solar Rad: %-4dw/m²  " .SolarRad }}
 {{- printf "   UV Index: %-3.1f    " .UVIndex }}
 {{- printf "    ET Today: %-3.1f"  .ET.Today }}
 
