@@ -55,7 +55,7 @@ Davis Instruments Weather station server (version ab06ac1) on 192.168.1.254:8023
 > help
 Command	                Argument(s)     Description
 ----------------------- --------------- -----------------------------------
-ARCHIVES, TREND         [h=2]           Show last h hours of observations
+ARCHIVE, TREND         [h=2]            Show last h hours of observations
                                         at 5 minute intervals
 COND, LOOP                              Show detailed latest observation
                                         information
@@ -65,7 +65,7 @@ LOGOFF, LOGOUT, QUIT                    Gracefully close the connection
 UNAME                                   Show server information
 UPTIME                                  Show server uptime
 VER, VERS                               Show server version
-WATCH                   <cond|loop|     Watch continuously
+WATCH                   <cond|loop|     Continuously watch an item
                          debug>
 WHOAMI                                  Show client source IP address and
                                         port
