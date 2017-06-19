@@ -154,13 +154,16 @@ func (c telnetCtx) uname() {
 	)
 }
 
+// uptime shows the server uptime rounded down to the nearest
+// second.
 func (c telnetCtx) uptime() {
+	d := time.Since(c.startTime)
 	c.tmpl("uptime",
 		struct {
 			Uptime    time.Duration
 			StartTime time.Time
 		}{
-			time.Since(c.startTime),
+			d - (d % time.Second),
 			c.startTime,
 		},
 	)
