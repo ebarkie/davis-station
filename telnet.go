@@ -60,7 +60,7 @@ commandLoop:
 			} else if h, _ := strconv.Atoi(args[0]); h > 0 {
 				c.archive(conn, uint(h))
 			} else {
-				fmt.Fprintf(conn, "%s: %s invalid range\n", cmd, args[0])
+				fmt.Fprintf(conn, "%s: invalid range %s\n", cmd, args[0])
 			}
 		case "COND", "LOOP":
 			c.loop(conn, false)
@@ -83,7 +83,7 @@ commandLoop:
 				case "DEBUG":
 					c.debug(conn)
 				default:
-					fmt.Fprintf(conn, "%s: %s invalid item\n", cmd, args[0])
+					fmt.Fprintf(conn, "%s: invalid item %s\n", cmd, args[0])
 				}
 			} else {
 				fmt.Fprintf(conn, "%s: an item is required\n", cmd)
