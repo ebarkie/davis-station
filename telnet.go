@@ -83,10 +83,10 @@ commandLoop:
 				case "DEBUG":
 					c.debug(conn)
 				default:
-					fmt.Fprintf(conn, "%s: %s invalid watch\n", cmd, args[0])
+					fmt.Fprintf(conn, "%s: %s invalid item\n", cmd, args[0])
 				}
 			} else {
-				fmt.Fprintf(conn, "%s: a watch item is required\n", cmd)
+				fmt.Fprintf(conn, "%s: an item is required\n", cmd)
 			}
 		case "WHOAMI":
 			c.whoami(conn)
