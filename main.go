@@ -2,7 +2,7 @@
 // Use of this source code is governed by the MIT license
 // that can be found in the LICENSE file.
 
-// Davis Instruments Weather station server.
+// Davis Instruments weather station.
 package main
 
 //go:generate ./version.sh
@@ -13,7 +13,7 @@ import (
 	"os"
 )
 
-var banner = fmt.Sprintf("Davis Instruments Weather station server (version %s)", version)
+var banner = fmt.Sprintf("Davis Instruments weather station (version %s)", version)
 
 func main() {
 	debug := flag.Bool("debug", false, "enable debug mode")

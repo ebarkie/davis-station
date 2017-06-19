@@ -1,3 +1,7 @@
-{{ define "uname" -}}
-{{ printf "%s on %s." .Banner .LocalAddr }}
+{{ define "uname" }} __      ______  ___
+/  \    /  \   \/  /
+\   \/\/   /\     /   {{ .Banner }}
+ \        / /     \   {{ .LocalAddr }}
+  \__/\  / /___/\  \
+       \/        \_/
 {{ end }}

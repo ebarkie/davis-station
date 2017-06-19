@@ -16,9 +16,9 @@ const (
 	loopStaleAge = 5 * time.Minute // Stop responding if most recent loop sample was > 5 minutes
 )
 
-// serverContext contains a shared context that is made available to
+// serverCtx contains a shared context that is made available to
 // the HTTP endpoint handlers and telnet connections.
-type serverContext struct {
+type serverCtx struct {
 	ad        *ArchiveData
 	lb        *loopBuffer
 	eb        *eventBroker
@@ -45,7 +45,7 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 		Error.Fatalf("Unable to open archive file %s: %s", dbFile, err.Error())
 	}
 	defer ad.Close()
-	sc := serverContext{
+	sc := serverCtx{
 		ad: &ad,
 		lb: &loopBuffer{},
 		eb: &eventBroker{
@@ -78,7 +78,7 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 		// a primitive test server instead of attaching to the
 		// Weatherlink.
 		if weatherStationAddress == "/dev/null" {
-			Info.Print("Test weather station poller started")
+			Info.Print("Test poller started")
 
 			// Send a mostly empty loop packet every 2s but a few
 			// things need to be initialized to pass QC checks.
@@ -92,7 +92,7 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 				time.Sleep(2 * time.Second)
 			}
 		} else {
-			Info.Print("Weather station poller started")
+			Info.Print("Weatherlink poller started")
 
 			// Connect to weatherlink logging
 			weatherlink.Trace.SetOutput(Trace)

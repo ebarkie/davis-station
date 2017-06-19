@@ -1,4 +1,4 @@
-# Davis Instruments weather station server
+# Davis Instruments weather station
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
 [![Build Status](https://travis-ci.org/ebarkie/davis-station.svg?branch=master)](https://travis-ci.org/ebarkie/davis-station)
@@ -50,7 +50,12 @@ $ telnet wx 8023
 Trying 192.168.1.254...
 Connected to wx.
 Escape character is '^]'.
-Davis Instruments Weather station server (version ab06ac1) on 192.168.1.254:8023.
+ __      ______  ___
+/  \    /  \   \/  /
+\   \/\/   /\     /   Davis Instruments weather station (version b99c7c3)
+ \        / /     \   127.0.0.1:8023
+  \__/\  / /___/\  \
+       \/        \_/
 
 > help
 Command	                Argument(s)     Description

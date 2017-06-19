@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-type httpContext serverContext
+type httpCtx serverCtx
 
 type httpLogWrapper struct {
 	http.CloseNotifier
@@ -33,7 +33,7 @@ func (l *httpLogWrapper) WriteHeader(status int) {
 	l.ResponseWriter.WriteHeader(status)
 }
 
-func (httpContext) logHandler(h http.Handler) http.HandlerFunc {
+func (httpCtx) logHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		record := &httpLogWrapper{
 			CloseNotifier:  w.(http.CloseNotifier),
@@ -55,7 +55,7 @@ func (httpContext) logHandler(h http.Handler) http.HandlerFunc {
 
 // archive is the endpoint for serving out archive records.
 // GET /archive[?begin=2016-08-03T00:00:00Z][&end=2016-09-03T00:00:00Z]
-func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
+func (c httpCtx) archive(w http.ResponseWriter, r *http.Request) {
 	// Parse and validate begin and end parameters.
 	var begin, end time.Time
 	var err error
@@ -108,7 +108,7 @@ func (c httpContext) archive(w http.ResponseWriter, r *http.Request) {
 
 // loop is the endpoint for serving out loop samples.
 // GET /loop[?lastSequence=#]
-func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
+func (c httpCtx) loop(w http.ResponseWriter, r *http.Request) {
 	loops := c.lb.loops()
 
 	// If there aren't enough samples (the server just started) or
@@ -160,7 +160,7 @@ func (c httpContext) loop(w http.ResponseWriter, r *http.Request) {
 // events is the endpoint for streaming loop samples using the Server-sent
 // events.
 // GET /events
-func (c httpContext) events(w http.ResponseWriter, r *http.Request) {
+func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 	// See Server-sent-event specification:
 	// https://en.wikipedia.org/wiki/Server-sent_events
 
@@ -187,8 +187,8 @@ func (c httpContext) events(w http.ResponseWriter, r *http.Request) {
 
 // httpServer starts the HTTP server.  It's blocking and should be called as
 // a goroutine.
-func httpServer(bindAddress string, sc serverContext) {
-	c := httpContext(sc)
+func httpServer(bindAddress string, sc serverCtx) {
+	c := httpCtx(sc)
 	http.HandleFunc("/archive", c.archive)
 	http.HandleFunc("/loop", c.loop)
 	http.HandleFunc("/events", c.events)
