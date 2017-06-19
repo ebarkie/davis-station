@@ -1,5 +1,3 @@
-{{/* Template for displaying loop packets */}}
-
 {{ define "loop" }}
 {{ template "clear" -}}
 Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) .Update.Seq }}

@@ -26,7 +26,7 @@ type telnetContext struct {
 func (c telnetContext) archive(conn io.Writer, h uint) {
 	d := time.Duration(h) * time.Hour
 	ac := c.ad.NewGet(time.Now().Add(-d), time.Now())
-	c.execTemplate(conn, "archive", ac)
+	c.tmpl(conn, "archive", ac)
 }
 
 func (c telnetContext) commandPrompt(conn net.Conn) {
@@ -37,7 +37,7 @@ func (c telnetContext) commandPrompt(conn net.Conn) {
 
 commandLoop:
 	for {
-		c.execTemplate(conn, "prompt", nil)
+		c.tmpl(conn, "prompt", nil)
 		in, err := c.readLine(conn)
 		if err != nil {
 			// Client closed the connection
@@ -65,16 +65,16 @@ commandLoop:
 		case "COND", "LOOP":
 			c.loop(conn, false)
 		case "DATE", "TIME":
-			fmt.Fprintln(conn, time.Now())
+			c.time(conn)
 		case "LOGOFF", "LOGOUT", "QUIT", "\x04":
-			fmt.Fprintln(conn, "Bye!")
+			c.quit(conn)
 			break commandLoop
 		case "UNAME":
 			c.uname(conn)
 		case "UPTIME":
 			c.uptime(conn)
 		case "VER", "VERS":
-			fmt.Fprintln(conn, version)
+			c.ver(conn)
 		case "WATCH":
 			if len(args) == 1 {
 				switch strings.ToUpper(args[0]) {
@@ -83,13 +83,13 @@ commandLoop:
 				case "DEBUG":
 					c.debug(conn)
 				default:
-					fmt.Fprintf(conn, "%s: %s invalid argument\n", cmd, args[0])
+					fmt.Fprintf(conn, "%s: %s invalid watch\n", cmd, args[0])
 				}
 			} else {
-				fmt.Fprintf(conn, "%s: an argument is required\n", cmd)
+				fmt.Fprintf(conn, "%s: a watch item is required\n", cmd)
 			}
 		case "WHOAMI":
-			fmt.Fprintln(conn, conn.RemoteAddr())
+			c.whoami(conn)
 		default:
 			fmt.Fprintf(conn, "%s: command not found.\n", cmd)
 		}
@@ -115,13 +115,13 @@ func (c telnetContext) debug(conn io.ReadWriter) {
 }
 
 func (c telnetContext) help(conn io.Writer) {
-	c.execTemplate(conn, "help", nil)
+	c.tmpl(conn, "help", nil)
 }
 
 func (c telnetContext) loop(conn net.Conn, watch bool) {
 	l := c.lb.loops()
 	if len(l) > 0 {
-		c.execTemplate(conn, "loop", l[0])
+		c.tmpl(conn, "loop", l[0])
 	}
 
 	if watch {
@@ -131,7 +131,7 @@ func (c telnetContext) loop(conn net.Conn, watch bool) {
 		go func() {
 			for e := range inEvents {
 				if e.event == "loop" {
-					c.execTemplate(conn, "loop", e.data)
+					c.tmpl(conn, "loop", e.data)
 					fmt.Fprintf(conn, "\nWatching conditions.  Press <ENTER> to end.")
 				}
 			}
@@ -141,17 +141,62 @@ func (c telnetContext) loop(conn net.Conn, watch bool) {
 	}
 }
 
-func (telnetContext) readLine(conn io.Reader) (string, error) {
-	r := bufio.NewReader(conn)
-	return r.ReadString('\n')
+func (c telnetContext) quit(conn io.Writer) {
+	c.tmpl(conn, "quit", nil)
 }
 
-func (c telnetContext) execTemplate(conn io.Writer, name string, data interface{}) {
-	err := c.templates.ExecuteTemplate(conn, name, data)
-	if err != nil {
-		Error.Printf("Telnet template %s is missing", name)
-		fmt.Fprintln(conn, "Content not available.")
-	}
+func (c telnetContext) time(conn io.Writer) {
+	c.tmpl(conn, "time",
+		struct {
+			Time time.Time
+		}{
+			time.Now(),
+		},
+	)
+}
+
+func (c telnetContext) uname(conn net.Conn) {
+	c.tmpl(conn, "uname",
+		struct {
+			Banner    string
+			LocalAddr net.Addr
+		}{
+			banner,
+			conn.LocalAddr(),
+		},
+	)
+}
+
+func (c telnetContext) uptime(conn io.Writer) {
+	c.tmpl(conn, "uptime",
+		struct {
+			Uptime    time.Duration
+			StartTime time.Time
+		}{
+			time.Since(c.startTime),
+			c.startTime,
+		},
+	)
+}
+
+func (c telnetContext) ver(conn io.Writer) {
+	c.tmpl(conn, "ver",
+		struct {
+			Version string
+		}{
+			version,
+		},
+	)
+}
+
+func (c telnetContext) whoami(conn net.Conn) {
+	c.tmpl(conn, "whoami",
+		struct {
+			RemoteAddr net.Addr
+		}{
+			conn.RemoteAddr(),
+		},
+	)
 }
 
 // degToDir converts a direction to a string.
@@ -170,12 +215,17 @@ func (telnetContext) degToDir(deg int) string {
 	return dirs[i]
 }
 
-func (telnetContext) uname(conn net.Conn) {
-	fmt.Fprintf(conn, "%s on %s.\n", banner, conn.LocalAddr())
+func (telnetContext) readLine(conn io.Reader) (string, error) {
+	r := bufio.NewReader(conn)
+	return r.ReadString('\n')
 }
 
-func (c telnetContext) uptime(conn io.Writer) {
-	fmt.Fprintf(conn, "%s (started %s)\n", time.Since(c.startTime), c.startTime)
+func (c telnetContext) tmpl(conn io.Writer, name string, data interface{}) {
+	err := c.templates.ExecuteTemplate(conn, name, data)
+	if err != nil {
+		Error.Printf("Telnet template %s is missing", name)
+		fmt.Fprintln(conn, "Content not available.")
+	}
 }
 
 // telnetServer starts the telnet server.  It's blocking and should be called as
