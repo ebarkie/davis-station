@@ -6,7 +6,7 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) 
    Forecast: {{ .Loop.Forecast }}
 
 {{ with .Loop -}}
-{{ printf "  Barometer: %-6.3fin %s" .Bar.Station .Bar.Trend }}
+{{ printf "  Barometer: %-6.3fin (%s)" .Bar.Station .Bar.Trend }}
 
 {{ printf "Temperature: %-6.2f°F  " .OutTemp }}
 {{- printf "   Humidity: %-3d%%    " .OutHumidity }}

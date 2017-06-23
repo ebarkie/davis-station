@@ -188,11 +188,16 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 // httpServer starts the HTTP server.  It's blocking and should be called as
 // a goroutine.
 func httpServer(bindAddress string, sc serverCtx) {
+	// Inherit generic server context so we have access to things like
+	// archive records and loop packets.
 	c := httpCtx(sc)
+
+	// Register routes.
 	http.HandleFunc("/archive", c.archive)
 	http.HandleFunc("/loop", c.loop)
 	http.HandleFunc("/events", c.events)
 
+	// Listen and accept new connections.
 	s := http.Server{
 		Addr:    bindAddress + ":8080",
 		Handler: c.logHandler(http.DefaultServeMux),
