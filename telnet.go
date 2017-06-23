@@ -132,17 +132,17 @@ func telnetServer(bindAddress string, sc serverCtx) {
 	}
 
 	// Register commands.
-	t.tc.Register("(?:archive|trend)[[:space:]]*([[:digit:]]*)", t.archive)
+	t.tc.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
 	t.tc.Register("(?:cond|loop)", t.loop)
 	t.tc.Register("(?:\\?|help)", t.help)
 	t.tc.Register("(?:\x04|logoff|logout|quit)", t.quit)
 	t.tc.Register("(?:date|time)", t.time)
 	t.tc.Register("uname", t.uname)
-	t.tc.Register("uptime", t.uptime)
-	t.tc.Register("ver[s]*", t.ver)
-	t.tc.Register("watch debug", t.debug)
-	t.tc.Register("(watch) (?:cond|loop)", t.loop)
-	t.tc.Register("whoami", t.whoami)
+	t.tc.Register("up(?:time)*", t.uptime)
+	t.tc.Register("ver(?:s)*", t.ver)
+	t.tc.Register("watch[[:space:]]+debug", t.debug)
+	t.tc.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
+	t.tc.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
 	// Listen and accept new connections.
 	address := bindAddress + ":8023"

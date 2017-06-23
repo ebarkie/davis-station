@@ -68,11 +68,11 @@ date, time                              Show current date and time
 help                                    Show this help information
 logoff, logout, quit                    Gracefully close the connection
 uname                                   Show server information
-uptime                                  Show server uptime
+up, uptime                              Show server uptime
 ver, vers                               Show server version
 watch                   <cond|loop|     Continuously watch an item
                          debug>
-whoami                                  Show client source IP address and
+whoami, who am i                        Show client source IP address and
                                         port
 
 > trend 1
