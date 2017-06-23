@@ -38,9 +38,8 @@ func (eb eventsBroker) publish(e event) {
 	eb.events <- e
 }
 
-// Event broker server.
-//
-// This handles new events and subscription requests.
+// eventsServer is the event broker server.  It processes incoming
+// events and subscription requests.
 func eventsServer(eb *eventsBroker) {
 	for {
 		select {
