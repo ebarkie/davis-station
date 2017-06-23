@@ -135,7 +135,7 @@ func telnetServer(bindAddress string, sc serverCtx) {
 	t.tc.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
 	t.tc.Register("(?:cond|loop)", t.loop)
 	t.tc.Register("(?:\\?|help)", t.help)
-	t.tc.Register("(?:\x04|logoff|logout|quit)", t.quit)
+	t.tc.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
 	t.tc.Register("(?:date|time)", t.time)
 	t.tc.Register("uname", t.uname)
 	t.tc.Register("up(?:time)*", t.uptime)

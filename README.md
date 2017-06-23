@@ -65,7 +65,7 @@ archive, trend          [h=2]           Show last h hours of observations
 cond, loop                              Show detailed latest observation
                                         information
 date, time                              Show current date and time
-help                                    Show this help information
+?, help                                 Show this help information
 logoff, logout, quit                    Gracefully close the connection
 uname                                   Show server information
 up, uptime                              Show server uptime
