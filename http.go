@@ -56,7 +56,7 @@ func (httpCtx) logHandler(h http.Handler) http.HandlerFunc {
 // archive is the endpoint for serving out archive records.
 // GET /archive[?begin=2016-08-03T00:00:00Z][&end=2016-09-03T00:00:00Z]
 func (c httpCtx) archive(w http.ResponseWriter, r *http.Request) {
-	// Parse and validate begin and end parameters.
+	// Parse and validate begin and end parameters
 	var begin, end time.Time
 	var err error
 
@@ -96,7 +96,7 @@ func (c httpCtx) archive(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Query archive from database and return.
+	// Query archive from database and return
 	archive := c.ad.Get(begin, end)
 	if len(archive) < 1 {
 		w.WriteHeader(http.StatusNoContent)
@@ -192,12 +192,12 @@ func httpServer(bindAddress string, sc serverCtx) {
 	// archive records and loop packets.
 	c := httpCtx(sc)
 
-	// Register routes.
+	// Register routes
 	http.HandleFunc("/archive", c.archive)
 	http.HandleFunc("/loop", c.loop)
 	http.HandleFunc("/events", c.events)
 
-	// Listen and accept new connections.
+	// Listen and accept new connections
 	s := http.Server{
 		Addr:    bindAddress + ":8080",
 		Handler: c.logHandler(http.DefaultServeMux),

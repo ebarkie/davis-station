@@ -75,9 +75,9 @@ func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan weatherlink.
 				min := []byte(begin.In(time.UTC).Format(time.RFC3339))
 				max := []byte(end.In(time.UTC).Format(time.RFC3339))
 
-				// Find starting position.
+				// Find starting position
 				if k, _ := c.Seek(max); k == nil {
-					// If max is not found then use the last key.
+					// If max is not found then use the last key
 					max, _ = c.Last()
 				} else if !bytes.Equal(k, max) {
 					// If Seek() does not get an exact match it returns

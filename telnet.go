@@ -31,7 +31,7 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 	defer Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
 
 	Debug.Printf("Telnet connection from %s opened", conn.RemoteAddr())
-	// Welcome banner.
+	// Welcome banner
 	t.tc.Exec(conn, "uname")
 
 	// Loop forever until connection is closed or a command returns
@@ -125,13 +125,13 @@ func telnetServer(bindAddress string, sc serverCtx) {
 	// archive records and loop packets.
 	t := telnetCtx{serverCtx: sc}
 
-	// Parse templates.
+	// Parse templates
 	err := t.parseTemplates()
 	if err != nil {
 		Error.Fatalf("Telnet template parse error: %s", err.Error())
 	}
 
-	// Register commands.
+	// Register commands
 	t.tc.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
 	t.tc.Register("(?:cond|loop)", t.loop)
 	t.tc.Register("(?:\\?|help)", t.help)
@@ -144,7 +144,7 @@ func telnetServer(bindAddress string, sc serverCtx) {
 	t.tc.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
 	t.tc.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
-	// Listen and accept new connections.
+	// Listen and accept new connections
 	address := bindAddress + ":8023"
 	Info.Printf("Telnet server started on %s", address)
 	l, err := net.Listen("tcp", address)

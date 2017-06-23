@@ -12,10 +12,7 @@ import (
 	"github.com/ebarkie/weatherlink"
 )
 
-// qualityControl stores the QC results.  A dedicated struct is
-// overkill for the limited validity checks currently implemented
-// but as other checks like temporal consistency are introduced it
-// will be useful.
+// qualityControl stores the QC results.
 type qualityControl struct {
 	errs   []error
 	passed bool

@@ -12,7 +12,7 @@ import (
 )
 
 func (t telnetCtx) archive(c CmdCtx) (err error) {
-	// Default archive period is 2 hours.
+	// Default archive period is 2 hours
 	h := 2
 	if a := c.Arg(1); a != "" {
 		h, err = strconv.Atoi(a)

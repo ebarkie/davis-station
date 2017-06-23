@@ -21,7 +21,7 @@ const (
 type serverCtx struct {
 	ad        *ArchiveData
 	lb        *loopBuffer
-	eb        *eventBroker
+	eb        *eventsBroker
 	startTime time.Time
 }
 
@@ -48,11 +48,11 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 	sc := serverCtx{
 		ad: &ad,
 		lb: &loopBuffer{},
-		eb: &eventBroker{
+		eb: &eventsBroker{
 			events: make(chan event, 8),
 			subs:   make(map[chan event]string),
-			sub:    make(chan eventSub),
-			unsub:  make(chan eventSub),
+			sub:    make(chan eventsSub),
+			unsub:  make(chan eventsSub),
 		},
 		startTime: time.Now(),
 	}
@@ -69,8 +69,8 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 	// Telnet server
 	go telnetServer(bindAddress, sc)
 
-	// Server-sent events broker
-	go eventsBroker(sc.eb)
+	// Events server
+	go eventsServer(sc.eb)
 
 	// Retrieve data from weather station
 	go func() {

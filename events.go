@@ -4,14 +4,14 @@
 
 package main
 
-type eventBroker struct {
+type eventsBroker struct {
 	events chan event            // New events that will be broacast to all subscribers
 	subs   map[chan event]string // Subscriber map as [channel] = address:port
-	sub    chan eventSub         // Subscribe requests pending add to map
-	unsub  chan eventSub         // Unsubscribe requests pending removal from map
+	sub    chan eventsSub        // Subscribe requests pending add to map
+	unsub  chan eventsSub        // Unsubscribe requests pending removal from map
 }
 
-type eventSub struct {
+type eventsSub struct {
 	name   string     // Subscriber name in the form address:port
 	events chan event // Subscriber event channel
 }
@@ -22,25 +22,26 @@ type event struct {
 }
 
 // subscribe registers a client to receive events.
-func (eb eventBroker) subscribe(name string) chan event {
+func (eb eventsBroker) subscribe(name string) chan event {
 	c := make(chan event)
-	eb.sub <- eventSub{name: name, events: c}
+	eb.sub <- eventsSub{name: name, events: c}
 	return c
 }
 
 // unsubscribe removes a client that was previously receiving events.
-func (eb eventBroker) unsubscribe(c chan event) {
-	eb.unsub <- eventSub{events: c}
+func (eb eventsBroker) unsubscribe(c chan event) {
+	eb.unsub <- eventsSub{events: c}
 }
 
 // publish sends a new event to subscribers.
-func (eb eventBroker) publish(e event) {
+func (eb eventsBroker) publish(e event) {
 	eb.events <- e
 }
 
-// Events broker.  This waits for new loop events and
-// broadcasts them to each channel in the subscribers map.
-func eventsBroker(eb *eventBroker) {
+// Event broker server.
+//
+// This handles new events and subscription requests.
+func eventsServer(eb *eventsBroker) {
 	for {
 		select {
 		case c := <-eb.sub:
