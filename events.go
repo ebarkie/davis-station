@@ -38,7 +38,7 @@ func (eb eventBroker) publish(e event) {
 	eb.events <- e
 }
 
-// Server-sent events broker.  This waits for new loop events and
+// Events broker.  This waits for new loop events and
 // broadcasts them to each channel in the subscribers map.
 func eventsBroker(eb *eventBroker) {
 	for {
