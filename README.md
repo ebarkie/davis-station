@@ -60,19 +60,19 @@ Escape character is '^]'.
 > help
 Command	                Argument(s)     Description
 ----------------------- --------------- -----------------------------------
-ARCHIVE, TREND         [h=2]            Show last h hours of observations
+archive, trend          [h=2]           Show last h hours of observations
                                         at 5 minute intervals
-COND, LOOP                              Show detailed latest observation
+cond, loop                              Show detailed latest observation
                                         information
-DATE, TIME                              Show current date and time
-HELP                                    Show this help information
-LOGOFF, LOGOUT, QUIT                    Gracefully close the connection
-UNAME                                   Show server information
-UPTIME                                  Show server uptime
-VER, VERS                               Show server version
-WATCH                   <cond|loop|     Continuously watch an item
+date, time                              Show current date and time
+help                                    Show this help information
+logoff, logout, quit                    Gracefully close the connection
+uname                                   Show server information
+uptime                                  Show server uptime
+ver, vers                               Show server version
+watch                   <cond|loop|     Continuously watch an item
                          debug>
-WHOAMI                                  Show client source IP address and
+whoami                                  Show client source IP address and
                                         port
 
 > trend 1
