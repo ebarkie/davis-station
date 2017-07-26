@@ -86,9 +86,9 @@ func (t telnetCtx) colorScale(i interface{}, cold, cool, warm, hot float64) stri
 		return t.ansi("33") // Yellow
 	}
 
-	if v < cold {
+	if v <= cold {
 		return t.ansi("34") // Blue
-	} else if v < cool {
+	} else if v <= cool {
 		return t.ansi("36") // Cyan
 	}
 
