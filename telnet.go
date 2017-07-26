@@ -56,8 +56,8 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 	}
 }
 
-// ansi is a helper function for emitting an ANSI escape sequence.
-func (telnetCtx) ansi(s string) string {
+// ansiEsc is a helper function for emitting an ANSI escape sequence.
+func (telnetCtx) ansiEsc(s string) string {
 	return "\x1b[" + s + "m"
 }
 
@@ -77,19 +77,19 @@ func (t telnetCtx) colorScale(i interface{}, cold, cool, warm, hot float64) stri
 		return ""
 	}
 
-	// The original 8 color specification code is used for maximum
-	// compatibility.  256 color mode also works under Linux and Mac
-	// OS X Terminal.  24-bit mode does not work under Mac OS X Terminal.
+	// The original 8 color specificationis used for maximum compatibility.
+	// 256 color mode also works with the default Linux and Mac OS X
+	// terminals.  24-bit mode does not work with Mac OS X.
 	if v >= hot {
-		return t.ansi("31") // Red
+		return t.ansiEsc("31") // Red
 	} else if v >= warm {
-		return t.ansi("33") // Yellow
+		return t.ansiEsc("33") // Yellow
 	}
 
 	if v <= cold {
-		return t.ansi("34") // Blue
+		return t.ansiEsc("34") // Blue
 	} else if v <= cool {
-		return t.ansi("36") // Cyan
+		return t.ansiEsc("36") // Cyan
 	}
 
 	return ""
@@ -99,7 +99,7 @@ func (t telnetCtx) colorScale(i interface{}, cold, cool, warm, hot float64) stri
 // an empty string if it is zero.
 func (t telnetCtx) highlight(v float64) string {
 	if v != 0 {
-		return t.ansi("1") // Bold
+		return t.ansiEsc("1") // Bold
 	}
 
 	return ""
@@ -130,7 +130,7 @@ func (t *telnetCtx) parseTemplates() (err error) {
 		"colorScale": t.colorScale,
 		"highlight":  t.highlight,
 		"noColor": func() string {
-			return t.ansi("0")
+			return t.ansiEsc("0")
 		},
 		"archiveTime": func(t time.Time) string {
 			return t.Format("01/02 15:04")
