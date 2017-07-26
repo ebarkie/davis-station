@@ -61,7 +61,7 @@ func validityCheck(l weatherlink.Loop) (qc qualityControl) {
 	qc.assertRange("Rain accumulation (last 24h)", l.Rain.Accum.Last24Hours, 0, 44)
 	qc.assertRange("Rain accumulation (today)", l.Rain.Accum.Today, 0, 44)
 
-	// Sol.temperature: -40.0F - 150.0F
+	// Soil temperature: -40.0F - 150.0F
 	for i, v := range l.SoilTemp {
 		if v != nil {
 			qc.assertRange(fmt.Sprintf("Soil temperature #%d", i), float64(*v), -40, 150)
