@@ -56,6 +56,55 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 	}
 }
 
+// ansi is a helper function for emitting an ANSI escape sequence.
+func (telnetCtx) ansi(s string) string {
+	return "\x1b[" + s + "m"
+}
+
+// colorScale returns an ANSI color code based on the passed value and
+// scale.  The mapping looks like:
+//
+// Cold<= Cooler<=     -     >=Warm   >=Hot
+// Blue   Cyan     <default> Yellow   Red
+func (t telnetCtx) colorScale(i interface{}, cold, cool, warm, hot float64) string {
+	var v float64
+	switch i.(type) {
+	case int:
+		v = float64(i.(int))
+	case float64:
+		v = i.(float64)
+	default:
+		return ""
+	}
+
+	// The original 8 color specification code is used for maximum
+	// compatibility.  256 color mode also works under Linux and Mac
+	// OS X Terminal.  24-bit mode does not work under Mac OS X Terminal.
+	if v >= hot {
+		return t.ansi("31") // Red
+	} else if v >= warm {
+		return t.ansi("33") // Yellow
+	}
+
+	if v < cold {
+		return t.ansi("34") // Blue
+	} else if v < cool {
+		return t.ansi("36") // Cyan
+	}
+
+	return ""
+}
+
+// highlight returns the ANSI bold code if the value is non-zero or
+// an empty string if it is zero.
+func (t telnetCtx) highlight(v float64) string {
+	if v != 0 {
+		return t.ansi("1") // Bold
+	}
+
+	return ""
+}
+
 // degToDir takes a direction in degrees and returns a human friendly
 // direction as a string.
 func (telnetCtx) degToDir(deg int) string {
@@ -77,15 +126,20 @@ func (telnetCtx) degToDir(deg int) string {
 // parses the templates for later execution.
 func (t *telnetCtx) parseTemplates() (err error) {
 	fmap := template.FuncMap{
-		"degToDir": t.degToDir,
-		"sunTime": func(t time.Time) string {
-			return t.Format("15:04")
+		"degToDir":   t.degToDir,
+		"colorScale": t.colorScale,
+		"highlight":  t.highlight,
+		"noColor": func() string {
+			return t.ansi("0")
 		},
 		"archiveTime": func(t time.Time) string {
 			return t.Format("01/02 15:04")
 		},
 		"longTime": func(t time.Time) string {
 			return t.Format("Monday, January 2 2006 at 15:04:05")
+		},
+		"sunTime": func(t time.Time) string {
+			return t.Format("15:04")
 		},
 	}
 	t.t, err = template.New("").Funcs(fmap).ParseGlob("tmpl/telnet/*.tmpl")
