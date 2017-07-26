@@ -8,20 +8,22 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) 
 {{ with .Loop -}}
 {{ printf "  Barometer: %-6.3fin (%s)" .Bar.Station .Bar.Trend }}
 
-{{ printf "Temperature: %s%-6.2f°F%s  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
-{{- printf "   Humidity: %s%-3d%%%s    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor }}
-{{- printf "  Dew Point: %s%-6.2f°F%s" (colorScale .DewPoint -999 -999 67 72) .DewPoint noColor }}
-{{ printf " Heat Index: %s%-6.2f°F%s" (colorScale .HeatIndex -999 -999 90 100) .HeatIndex noColor }}
-{{ printf " Wind Chill: %s%-6.2f°F%s" (colorScale .WindChill 0 32 999 999) .WindChill noColor }}
+{{ printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
+{{- printf "   Humidity: %s%-3d%s%%    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor }}
+{{- printf "  Dew Point: %s%-6.2f%s°F" (colorScale .DewPoint -999 -999 67 72) .DewPoint noColor }}
+{{ printf " Heat Index: %s%-6.2f%s°F" (colorScale .HeatIndex -999 -999 90 100) .HeatIndex noColor }}
+{{ printf " Wind Chill: %s%-6.2f%s°F" (colorScale .WindChill 0 32 999 999) .WindChill noColor }}
 
-{{ printf "  Solar Rad: %s%-4dw/m²%s  " (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor }}
+{{ printf "  Solar Rad: %s%-4d%sw/m²  " (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor }}
 {{- printf "   UV Index: %s%-3.1f%s    " (colorScale .UVIndex -1 -1 5 8) .UVIndex noColor }}
 {{- printf "    ET Today: %-3.1f"  .ET.Today }}
 
-{{ printf " Rain Today: %-4.2fin  " .Rain.Accum.Today }}
-{{- printf "         Rate: %s%-4.2fin/h%s" (highlight .Rain.Rate) .Rain.Rate noColor }}
+{{ printf " Rain Today: %s%-4.2f%sin  " (highlight .Rain.Accum.Today) .Rain.Accum.Today noColor }}
+{{- printf "         Rate: %s%-4.2f%sin/h" (colorScale .Rain.Rate -1 -1 0.01 1) .Rain.Rate noColor }}
 
-{{ printf "       Wind: %-3d° %-3s at %-3dmph" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) .Wind.Cur.Speed }}
-{{ printf "    Gusting: %-3d° %-3s at %-3.0fmph" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir) .Wind.Gust.Last10MinSpeed }}
+{{ printf "       Wind: %-3d° %-3s" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) }}
+{{- printf " at %s%-3d%smph" (colorScale .Wind.Cur.Speed -1 -1 8 19) .Wind.Cur.Speed noColor }}
+{{ printf "    Gusting: %-3d° %-3s" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir) }}
+{{- printf " at %s%-3.0f%smph" (colorScale .Wind.Gust.Last10MinSpeed -1 -1 19 32) .Wind.Gust.Last10MinSpeed noColor }}
 {{ end -}}
 {{ end }}
