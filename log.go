@@ -66,7 +66,7 @@ func (l *logger) Write(p []byte) (n int, err error) {
 
 	for _, w := range l.writers {
 		n, err = w.Write(p)
-		if (err != nil) || (n != len(p)) {
+		if err != nil || n != len(p) {
 			err = io.ErrShortWrite
 			continue
 		}
