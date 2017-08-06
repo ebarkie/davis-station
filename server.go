@@ -57,12 +57,6 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 		startTime: time.Now(),
 	}
 
-	// The archive channel is buffered to the maximum records a Vantage
-	// Pro 2 console can hold in memory.  This can speed up large
-	// downloads which would otherwise be I/O bound by database writes.
-	archive := make(chan weatherlink.Archive, 5*512)
-	loops := make(chan weatherlink.Loop, 8)
-
 	// HTTP server
 	go httpServer(bindAddress, sc)
 
@@ -72,71 +66,67 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 	// Events server
 	go eventsServer(sc.eb)
 
-	// Retrieve data from weather station
-	go func() {
-		// If a device name of "/dev/null" is specified launch
-		// a primitive test server instead of attaching to the
-		// Weatherlink.
-		if weatherStationAddress == "/dev/null" {
-			Info.Print("Test poller started")
+	// Open and setup events channel for weather station
+	var ec chan interface{}
 
-			// Send a mostly empty loop packet every 2s but a few
-			// things need to be initialized to pass QC checks.
-			l := weatherlink.Loop{}
-			l.Bar.Altimeter = 6.8 // QC minimums
-			l.Bar.SeaLevel = 25.0
-			l.Bar.Station = 6.8
+	// If a device name of "/dev/null" is specified launch
+	// a primitive test server instead of attaching to the
+	// Weatherlink.
+	if weatherStationAddress == "/dev/null" {
+		Info.Print("Test poller started")
 
+		ec = make(chan interface{})
+
+		// Send a mostly empty loop packet every 2s but a few
+		// things need to be initialized to pass QC checks.
+		l := weatherlink.Loop{}
+		l.Bar.Altimeter = 6.8 // QC minimums
+		l.Bar.SeaLevel = 25.0
+		l.Bar.Station = 6.8
+
+		go func() {
 			for {
-				loops <- l
+				ec <- l
 				time.Sleep(2 * time.Second)
 			}
-		} else {
-			Info.Print("Weatherlink poller started")
+		}()
+	} else {
+		Info.Print("Weatherlink poller started")
 
-			// Connect to weatherlink logging
-			weatherlink.Trace.SetOutput(Trace)
-			weatherlink.Debug.SetOutput(Debug)
-			weatherlink.Info.SetOutput(Info)
-			weatherlink.Warn.SetOutput(Warn)
-			weatherlink.Error.SetOutput(Error)
+		// Connect the weatherlink loggers
+		weatherlink.Trace.SetOutput(Trace)
+		weatherlink.Debug.SetOutput(Debug)
+		weatherlink.Info.SetOutput(Info)
+		weatherlink.Warn.SetOutput(Warn)
+		weatherlink.Error.SetOutput(Error)
 
-			wl, err := weatherlink.Dial(weatherStationAddress)
-			if err != nil {
-				Error.Fatal(err)
-			}
-			defer wl.Close()
-			wl.Archive = archive
-			wl.LastDmpTime = ad.Last()
-			wl.Loops = loops
-
-			err = wl.Start()
-			if err != nil {
-				Error.Fatalf("Weatherlink command broker error: %s", err.Error())
-			}
+		// Open connection and start command broker
+		wl, err := weatherlink.Dial(weatherStationAddress)
+		if err != nil {
+			Error.Fatal(err)
 		}
-	}()
+		defer wl.Close()
+		wl.LastDmpTime = ad.Last()
+		ec = wl.Start()
+	}
 
-	// Monitor archive channel for new records
-	go func() {
-		for {
-			a := <-archive
+	// Receive events forever
+	var loopSeq int64
+	for e := range ec {
+		switch e.(type) {
+		case weatherlink.Archive:
+			a := e.(weatherlink.Archive)
 
-			// Add to archive database
+			// Add record to archive database
 			err := ad.Add(a)
 			if err != nil {
 				Error.Printf("Unable to add archive record to database: %s", err.Error())
 			}
 
-			// Update Server-sent events broker
+			// Update events broker
 			sc.eb.publish(event{event: "archive", data: a})
-		}
-	}()
-
-	// Monitor loop channel for new packets
-	go func() {
-		for seq := int64(0); true; seq++ {
-			l := <-loops
+		case weatherlink.Loop:
+			l := e.(weatherlink.Loop)
 
 			// Quality control validity check
 			qc := validityCheck(l)
@@ -149,17 +139,20 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 			// Wrap with sequence and timestamp
 			wrappedLoop := WrappedLoop{}
 			wrappedLoop.Update.Timestamp = time.Now()
-			wrappedLoop.Update.Seq = seq
+			wrappedLoop.Update.Seq = loopSeq
 			wrappedLoop.Loop = l
 
 			// Update loop buffer
 			sc.lb.add(wrappedLoop)
 
-			// Publish to Server-sent events broker
+			// Publish to events broker
 			sc.eb.publish(event{event: "loop", data: wrappedLoop})
-		}
-	}()
 
-	// Block forever
-	select {}
+			// Increment loop sequence
+			loopSeq++
+		default:
+			Warn.Printf("Unhandled event type: %T", e)
+		}
+	}
+	Error.Fatal("Weatherlink command broker died")
 }
