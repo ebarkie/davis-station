@@ -25,18 +25,12 @@ type serverCtx struct {
 	startTime time.Time
 }
 
-// WrappedLoop is a wrapper struct for a Loop packet so Update
-// information can be added.
-type WrappedLoop struct {
-	Update Update           `json:"update"`
-	Loop   weatherlink.Loop `json:"loop"`
-}
-
-// Update is a struct for representing the update timestamp
-// and sequence of a loop sample.
-type Update struct {
-	Timestamp time.Time `json:"timestamp"`
+// Loop is a weatherlink.Loop with a sequence and timestamp
+// added in.
+type Loop struct {
 	Seq       int64     `json:"sequence"`
+	Timestamp time.Time `json:"timestamp"`
+	weatherlink.Loop
 }
 
 func server(bindAddress string, weatherStationAddress string, dbFile string) {
@@ -77,8 +71,8 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 
 		ec = make(chan interface{})
 
-		// Send a mostly empty loop packet every 2s but a few
-		// things need to be initialized to pass QC checks.
+		// Send a mostly empty loop packet, except for a few
+		// things initialized so it passes QC,  every 2s.
 		l := weatherlink.Loop{}
 		l.Bar.Altimeter = 6.8 // QC minimums
 		l.Bar.SeaLevel = 25.0
@@ -111,7 +105,7 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 	}
 
 	// Receive events forever
-	var loopSeq int64
+	var seq int64
 	for e := range ec {
 		switch e.(type) {
 		case weatherlink.Archive:
@@ -126,7 +120,11 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 			// Update events broker
 			sc.eb.publish(event{event: "archive", data: a})
 		case weatherlink.Loop:
-			l := e.(weatherlink.Loop)
+			// Create Loop with sequence and timestamp
+			l := Loop{}
+			l.Timestamp = time.Now()
+			l.Seq = seq
+			l.Loop = e.(weatherlink.Loop)
 
 			// Quality control validity check
 			qc := validityCheck(l)
@@ -136,20 +134,14 @@ func server(bindAddress string, weatherStationAddress string, dbFile string) {
 				continue
 			}
 
-			// Wrap with sequence and timestamp
-			wrappedLoop := WrappedLoop{}
-			wrappedLoop.Update.Timestamp = time.Now()
-			wrappedLoop.Update.Seq = loopSeq
-			wrappedLoop.Loop = l
-
 			// Update loop buffer
-			sc.lb.add(wrappedLoop)
+			sc.lb.add(l)
 
 			// Publish to events broker
-			sc.eb.publish(event{event: "loop", data: wrappedLoop})
+			sc.eb.publish(event{event: "loop", data: l})
 
 			// Increment loop sequence
-			loopSeq++
+			seq++
 		default:
 			Warn.Printf("Unhandled event type: %T", e)
 		}

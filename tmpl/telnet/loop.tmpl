@@ -1,11 +1,10 @@
 {{ define "loop" }}
 {{ template "clear" -}}
-Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) .Update.Seq }}
-                      Sunrise at {{ .Loop.Sunrise | sunTime }}, sunset at {{ .Loop.Sunset | sunTime }}
+Weather conditions on {{ printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq }}
+                      Sunrise at {{ .Sunrise | sunTime }}, sunset at {{ .Sunset | sunTime }}
 
-   Forecast: {{ .Loop.Forecast }}
+   Forecast: {{ .Forecast }}
 
-{{ with .Loop -}}
 {{ printf "  Barometer: %-6.3fin (%s)" .Bar.Station .Bar.Trend }}
 
 {{ printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
@@ -25,5 +24,4 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Update.Timestamp | longTime) 
 {{- printf " at %s%-3d%smph" (colorScale .Wind.Cur.Speed -1 -1 8 19) .Wind.Cur.Speed noColor }}
 {{ printf "    Gusting: %-3d° %-3s" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir) }}
 {{- printf " at %s%-3.0f%smph" (colorScale .Wind.Gust.Last10MinSpeed -1 -1 19 32) .Wind.Gust.Last10MinSpeed noColor }}
-{{ end -}}
 {{ end }}

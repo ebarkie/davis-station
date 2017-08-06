@@ -120,7 +120,7 @@ func (c httpCtx) loop(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if time.Since(loops[0].Update.Timestamp) > loopStaleAge {
+	if time.Since(loops[0].Timestamp) > loopStaleAge {
 		w.Header().Set("Warning", "Samples are too old")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
@@ -141,7 +141,7 @@ func (c httpCtx) loop(w http.ResponseWriter, r *http.Request) {
 		//
 		// If the request sequence is so far back that it's been purged
 		// then return everything.
-		endIndex := int(loops[0].Update.Seq - seq)
+		endIndex := int(loops[0].Seq - seq)
 		if endIndex < 1 {
 			w.WriteHeader(http.StatusNoContent)
 		} else {

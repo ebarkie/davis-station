@@ -7,8 +7,6 @@ package main
 import (
 	"testing"
 
-	"github.com/ebarkie/weatherlink"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +14,7 @@ func TestLoopValidity(t *testing.T) {
 	a := assert.New(t)
 
 	// Invalid uninitialized loop packet
-	l := weatherlink.Loop{}
+	l := Loop{}
 	qc := validityCheck(l)
 	a.False(qc.passed, "Uninitialized packet fails validity check")
 	a.NotNil(qc.errs, "Uninitialized packet should have errors")

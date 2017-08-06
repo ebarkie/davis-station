@@ -10,7 +10,7 @@ import "sync"
 // historical loops.  It's designed to be efficient at adding
 // new items since it happens very frequently.
 type loopBuffer struct {
-	buf  [loopsMax]WrappedLoop
+	buf  [loopsMax]Loop
 	cur  int
 	size int
 	sync.RWMutex
@@ -18,25 +18,25 @@ type loopBuffer struct {
 
 // add adds a wrapped loop packet to the loop buffer.  Once the
 // buffer is full each new packet overwrites the oldest.
-func (l *loopBuffer) add(w WrappedLoop) {
-	l.Lock()
-	defer l.Unlock()
+func (b *loopBuffer) add(l Loop) {
+	b.Lock()
+	defer b.Unlock()
 
-	l.cur = (l.cur + 1) % loopsMax
-	l.buf[l.cur] = w
-	if l.size < loopsMax {
-		l.size++
+	b.cur = (b.cur + 1) % loopsMax
+	b.buf[b.cur] = l
+	if b.size < loopsMax {
+		b.size++
 	}
 }
 
 // loops returns the loop buffer as a slice.
-func (l *loopBuffer) loops() (w []WrappedLoop) {
-	l.RLock()
-	defer l.RUnlock()
+func (b *loopBuffer) loops() (l []Loop) {
+	b.RLock()
+	defer b.RUnlock()
 
-	j := l.cur
-	for i := 0; i < l.size; i++ {
-		w = append(w, l.buf[j])
+	j := b.cur
+	for i := 0; i < b.size; i++ {
+		l = append(l, b.buf[j])
 		j = (j - 1 + loopsMax) % loopsMax
 	}
 

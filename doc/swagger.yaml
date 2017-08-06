@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  version: 1.0.0
+  version: 2017.08.06
   title: Davis Instruments weather station server
   description: >-
     This uses the weatherlink package to talk to a Davis weather station over a
@@ -74,7 +74,7 @@ paths:
         '200':
           description: List of loop packets
           schema:
-            $ref: '#/definitions/WrappedLoops'
+            $ref: '#/definitions/Loops'
         '503':
           description: >-
             Not enough samples yet (server just started) or the samples are too
@@ -188,6 +188,12 @@ definitions:
       different and they complement each other.
     type: object
     properties:
+      sequence:
+        type: integer
+        format: int64
+      timestamp:
+        type: string
+        format: date-time
       ET:
         $ref: '#/definitions/LoopET'
       THSWIndex:
@@ -389,30 +395,8 @@ definitions:
       last10MinutesSpeed:
         type: number
         format: double
-  WrappedLoops:
-    title: WrappedLoops
+  Loops:
+    title: Loops
     type: array
     items:
-      $ref: '#/definitions/WrappedLoop'
-  WrappedLoop:
-    description: >-
-      WrappedLoop is a wrapper struct for a Loop packet so Update information
-      can be added.
-    type: object
-    properties:
-      loop:
-        $ref: '#/definitions/Loop'
-      update:
-        $ref: '#/definitions/Update'
-  Update:
-    description: >-
-      Update is a struct for representing the update timestamp and sequence of a
-      loop sample.
-    type: object
-    properties:
-      sequence:
-        type: integer
-        format: int64
-      timestamp:
-        type: string
-        format: date-time
+      $ref: '#/definitions/Loop'
