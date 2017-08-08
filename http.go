@@ -197,7 +197,7 @@ func httpServer(sc serverCtx, bindAddr string) {
 	http.HandleFunc("/loop", c.loop)
 	http.HandleFunc("/events", c.events)
 
-	// Listen and acce/t new connections
+	// Listen and accept new connections
 	s := http.Server{
 		Addr:    bindAddr + ":8080",
 		Handler: c.logHandler(http.DefaultServeMux),
