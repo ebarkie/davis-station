@@ -18,25 +18,25 @@ type loopBuffer struct {
 
 // add adds a wrapped loop packet to the loop buffer.  Once the
 // buffer is full each new packet overwrites the oldest.
-func (b *loopBuffer) add(l Loop) {
-	b.Lock()
-	defer b.Unlock()
+func (lb *loopBuffer) add(l Loop) {
+	lb.Lock()
+	defer lb.Unlock()
 
-	b.cur = (b.cur + 1) % loopsMax
-	b.buf[b.cur] = l
-	if b.size < loopsMax {
-		b.size++
+	lb.cur = (lb.cur + 1) % loopsMax
+	lb.buf[lb.cur] = l
+	if lb.size < loopsMax {
+		lb.size++
 	}
 }
 
 // loops returns the loop buffer as a slice.
-func (b *loopBuffer) loops() (l []Loop) {
-	b.RLock()
-	defer b.RUnlock()
+func (lb *loopBuffer) loops() (l []Loop) {
+	lb.RLock()
+	defer lb.RUnlock()
 
-	j := b.cur
-	for i := 0; i < b.size; i++ {
-		l = append(l, b.buf[j])
+	j := lb.cur
+	for i := 0; i < lb.size; i++ {
+		l = append(l, lb.buf[j])
 		j = (j - 1 + loopsMax) % loopsMax
 	}
 

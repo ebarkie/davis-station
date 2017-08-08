@@ -64,13 +64,13 @@ func (t telnetCtx) loop(c CmdCtx) error {
 	}
 
 	if watch {
-		inEvents := t.eb.subscribe(c.RemoteAddr().String())
-		defer t.eb.unsubscribe(inEvents)
+		inEvents := t.eb.Subscribe(c.RemoteAddr().String())
+		defer t.eb.Unsubscribe(inEvents)
 
 		go func() {
 			for e := range inEvents {
-				if e.event == "loop" {
-					t.template(c.Writer(), "loop", e.data)
+				if e.Event == "loop" {
+					t.template(c.Writer(), "loop", e.Data)
 					fmt.Fprintf(c.Writer(), "\nWatching conditions.  Press <ENTER> to end.")
 				}
 			}

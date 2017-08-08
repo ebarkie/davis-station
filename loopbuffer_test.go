@@ -13,20 +13,20 @@ import (
 
 func BenchmarkImplementedLoopBuffer(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		var b loopBuffer
+		var lb loopBuffer
 		for i := 0; i < loopsMax*2; i++ {
-			b.add(Loop{Seq: int64(i)})
+			lb.add(Loop{Seq: int64(i)})
 		}
 	}
 }
 
 func TestLoopBuffer(t *testing.T) {
 	for added := 0; added < loopsMax+2; added++ {
-		var b loopBuffer
+		var lb loopBuffer
 		var loops []Loop
 
 		for i := 0; i < added; i++ {
-			b.add(Loop{Seq: int64(i)})
+			lb.add(Loop{Seq: int64(i)})
 
 			if len(loops) >= loopsMax {
 				loops = loops[0 : len(loops)-1]
@@ -34,6 +34,6 @@ func TestLoopBuffer(t *testing.T) {
 			loops = append([]Loop{{Seq: int64(i)}}, loops...)
 		}
 
-		assert.Equal(t, loops, b.loops(), fmt.Sprintf("Added %d does not match slice", added))
+		assert.Equal(t, loops, lb.loops(), fmt.Sprintf("Added %d does not match slice", added))
 	}
 }

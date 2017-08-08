@@ -168,8 +168,8 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	inEvents := c.eb.subscribe(r.RemoteAddr)
-	defer c.eb.unsubscribe(inEvents)
+	inEvents := c.eb.Subscribe(r.RemoteAddr)
+	defer c.eb.Unsubscribe(inEvents)
 
 	for {
 		select {
@@ -177,8 +177,8 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 			// Client closed the connection
 			return
 		case e := <-inEvents:
-			fmt.Fprintf(w, "event: %s\n", e.event)
-			r, _ := json.Marshal(e.data)
+			fmt.Fprintf(w, "event: %s\n", e.Event)
+			r, _ := json.Marshal(e.Data)
 			fmt.Fprintf(w, "data: %s\n\n", r)
 			w.(http.Flusher).Flush()
 		}
@@ -187,7 +187,7 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 
 // httpServer starts the HTTP server.  It's blocking and should be called as
 // a goroutine.
-func httpServer(bindAddress string, sc serverCtx) {
+func httpServer(sc serverCtx, bindAddr string) {
 	// Inherit generic server context so we have access to things like
 	// archive records and loop packets.
 	c := httpCtx(sc)
@@ -197,9 +197,9 @@ func httpServer(bindAddress string, sc serverCtx) {
 	http.HandleFunc("/loop", c.loop)
 	http.HandleFunc("/events", c.events)
 
-	// Listen and accept new connections
+	// Listen and acce/t new connections
 	s := http.Server{
-		Addr:    bindAddress + ":8080",
+		Addr:    bindAddr + ":8080",
 		Handler: c.logHandler(http.DefaultServeMux),
 	}
 	Info.Printf("HTTP server started on %s", s.Addr)

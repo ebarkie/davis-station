@@ -174,7 +174,7 @@ func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
 
 // telnetServer starts the telnet server.  It's blocking and should be called as
 // a goroutine.
-func telnetServer(bindAddress string, sc serverCtx) {
+func telnetServer(sc serverCtx, bindAddr string) {
 	// Inherit generic server context so we have access to things like
 	// archive records and loop packets.
 	t := telnetCtx{serverCtx: sc}
@@ -199,7 +199,7 @@ func telnetServer(bindAddress string, sc serverCtx) {
 	t.tc.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
 	// Listen and accept new connections
-	address := bindAddress + ":8023"
+	address := bindAddr + ":8023"
 	Info.Printf("Telnet server started on %s", address)
 	l, err := net.Listen("tcp", address)
 	if err != nil {
