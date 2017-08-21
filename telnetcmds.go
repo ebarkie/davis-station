@@ -9,9 +9,11 @@ import (
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/ebarkie/davis-station/internal/textcmd"
 )
 
-func (t telnetCtx) archive(c CmdCtx) (err error) {
+func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 	// Default archive period is 2 hours
 	h := 2
 	if a := c.Arg(1); a != "" {
@@ -28,7 +30,7 @@ func (t telnetCtx) archive(c CmdCtx) (err error) {
 	return
 }
 
-func (t telnetCtx) debug(c CmdCtx) error {
+func (t telnetCtx) debug(c textcmd.Ctx) error {
 	fmt.Fprintf(c.Writer(), "Watching log at debug level.  Press <ENTER> to end.\n\n")
 	debugLoggers := []*logger{Debug, Info, Warn, Error}
 	for _, l := range debugLoggers {
@@ -46,13 +48,13 @@ func (t telnetCtx) debug(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) help(c CmdCtx) error {
+func (t telnetCtx) help(c textcmd.Ctx) error {
 	t.template(c.Writer(), "help", nil)
 
 	return nil
 }
 
-func (t telnetCtx) loop(c CmdCtx) error {
+func (t telnetCtx) loop(c textcmd.Ctx) error {
 	watch := false
 	if a := c.Arg(1); a == "watch" {
 		watch = true
@@ -82,13 +84,13 @@ func (t telnetCtx) loop(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) quit(c CmdCtx) error {
+func (t telnetCtx) quit(c textcmd.Ctx) error {
 	t.template(c.Writer(), "quit", nil)
 
-	return ErrCmdQuit
+	return textcmd.ErrCmdQuit
 }
 
-func (t telnetCtx) time(c CmdCtx) error {
+func (t telnetCtx) time(c textcmd.Ctx) error {
 	t.template(c.Writer(), "time",
 		struct {
 			Time time.Time
@@ -98,7 +100,7 @@ func (t telnetCtx) time(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) uname(c CmdCtx) error {
+func (t telnetCtx) uname(c textcmd.Ctx) error {
 	t.template(c.Writer(), "uname",
 		struct {
 			Banner    string
@@ -109,7 +111,7 @@ func (t telnetCtx) uname(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) uptime(c CmdCtx) error {
+func (t telnetCtx) uptime(c textcmd.Ctx) error {
 	// Round uptime down to nearest second
 	uptime := time.Since(t.startTime)
 	uptime = uptime - (uptime % time.Second)
@@ -124,7 +126,7 @@ func (t telnetCtx) uptime(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) ver(c CmdCtx) error {
+func (t telnetCtx) ver(c textcmd.Ctx) error {
 	t.template(c.Writer(), "ver",
 		struct {
 			Version string
@@ -134,7 +136,7 @@ func (t telnetCtx) ver(c CmdCtx) error {
 	return nil
 }
 
-func (t telnetCtx) whoami(c CmdCtx) error {
+func (t telnetCtx) whoami(c textcmd.Ctx) error {
 	t.template(c.Writer(), "whoami",
 		struct {
 			RemoteAddr net.Addr

@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/ebarkie/davis-station/internal/textcmd"
 )
 
 // Telnet server for accessing weather station data old-school style.
@@ -22,7 +24,7 @@ import (
 type telnetCtx struct {
 	serverCtx
 	t  *template.Template
-	tc TextCmds
+	sh textcmd.Shell
 }
 
 // commandPrompt is the "main menu" for the telnet Conn.
@@ -32,7 +34,7 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 
 	Debug.Printf("Telnet connection from %s opened", conn.RemoteAddr())
 	// Welcome banner
-	t.tc.Exec(conn, "uname")
+	t.sh.Exec(conn, "uname")
 
 	// Loop forever until connection is closed or a command returns
 	// an ErrCmdQuit error.
@@ -45,8 +47,8 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 		}
 		Debug.Printf("Telnet command from %s: %s", conn.RemoteAddr(), s)
 
-		err = t.tc.Exec(conn, s)
-		if err == ErrCmdQuit {
+		err = t.sh.Exec(conn, s)
+		if err == textcmd.ErrCmdQuit {
 			return
 		}
 		if err != nil {
@@ -165,11 +167,13 @@ func (telnetCtx) readLine(r io.Reader) (s string, err error) {
 // template executes the named template with the specified data
 // and sends the output to the Conn.
 func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
-	err := t.t.ExecuteTemplate(w, name, data)
+	bw := bufio.NewWriter(w)
+	err := t.t.ExecuteTemplate(bw, name, data)
 	if err != nil {
 		Error.Printf("Template %s error: %s", name, err.Error())
-		fmt.Fprintln(w, "Content not available.")
+		fmt.Fprintln(bw, "Content not available.")
 	}
+	bw.Flush()
 }
 
 // telnetServer starts the telnet server.  It's blocking and should be called as
@@ -185,18 +189,18 @@ func telnetServer(sc serverCtx, bindAddr string) {
 		Error.Fatalf("Telnet template parse error: %s", err.Error())
 	}
 
-	// Register commands
-	t.tc.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
-	t.tc.Register("(?:cond|loop)", t.loop)
-	t.tc.Register("(?:\\?|help)", t.help)
-	t.tc.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
-	t.tc.Register("(?:date|time)", t.time)
-	t.tc.Register("uname", t.uname)
-	t.tc.Register("up(?:time)*", t.uptime)
-	t.tc.Register("ver(?:s)*", t.ver)
-	t.tc.Register("watch[[:space:]]+debug", t.debug)
-	t.tc.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
-	t.tc.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
+	// Register shell commands
+	t.sh.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
+	t.sh.Register("(?:cond|loop)", t.loop)
+	t.sh.Register("(?:\\?|help)", t.help)
+	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
+	t.sh.Register("(?:date|time)", t.time)
+	t.sh.Register("uname", t.uname)
+	t.sh.Register("up(?:time)*", t.uptime)
+	t.sh.Register("ver(?:s)*", t.ver)
+	t.sh.Register("watch[[:space:]]+debug", t.debug)
+	t.sh.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
+	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
 	// Listen and accept new connections
 	address := bindAddr + ":8023"
