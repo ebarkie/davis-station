@@ -16,10 +16,10 @@ import (
 var banner = fmt.Sprintf("Davis Instruments weather station (version %s)", version)
 
 func main() {
-	debug := flag.Bool("debug", false, "enable debug mode")
 	bindAddress := flag.String("bindaddress", "[::]", "server bind address")
-	device := flag.String("device", "", "weather station device (REQUIRED)")
 	dbFile := flag.String("database", "weather.db", "sqlite database file")
+	debug := flag.Bool("debug", false, "enable debug mode")
+	device := flag.String("device", "", "weather station device (REQUIRED)")
 	trace := flag.Bool("trace", false, "enable trace mode")
 	flag.Parse()
 
