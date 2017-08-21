@@ -39,6 +39,8 @@ Usage of ./davis-station:
         enable debug mode
   -device string
         weather station device (REQUIRED)
+  -trace
+        enable trace mode
 
 $ ./davis-station -device /dev/ttyUSB0
 ```
@@ -52,26 +54,25 @@ Connected to wx.
 Escape character is '^]'.
  __      ______  ___
 /  \    /  \   \/  /
-\   \/\/   /\     /   Davis Instruments weather station (version b99c7c3)
+\   \/\/   /\     /   Davis Instruments weather station (version adf5005)
  \        / /     \   127.0.0.1:8023
   \__/\  / /___/\  \
        \/        \_/
 
 > help
 Command	                Argument(s)     Description
------------------------ --------------- -----------------------------------
+----------------------- --------------- ------------------------------------
 archive, trend          [h=2]           Show last h hours of observations
                                         at 5 minute intervals
-cond, loop                              Show detailed latest observation
-                                        information
+cond, loop                              Show latest conditions in detail
 date, time                              Show current date and time
 ?, help                                 Show this help information
 logoff, logout, quit                    Gracefully close the connection
 uname                                   Show server information
 up, uptime                              Show server uptime
 ver, vers                               Show server version
-watch                   <cond|loop|     Continuously watch an item
-                         debug>
+watch cond, loop                        Continuously watch latest conditions
+watch log               <debug|trace>   Watch debug or trace logs
 whoami, who am i                        Show client source IP address and
                                         port
 
