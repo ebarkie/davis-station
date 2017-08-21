@@ -13,8 +13,8 @@ import (
 )
 
 // logger wraps the standard Go logger with our own io.Writer
-// interface that allows for multiple writers.  This allows
-// telnet connections to temporarily subscribe.
+// interface that allows for multiple writers.  Telnet connections
+// use this to temporarily subscribe to debug or trace.
 type logger struct {
 	*log.Logger              // Go logger
 	writers      []io.Writer // Slice of writers that need to be written to
