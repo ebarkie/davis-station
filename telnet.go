@@ -53,7 +53,7 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 		}
 		if err != nil {
 			Warn.Printf("Telnet command error %s: %s: %s", conn.RemoteAddr(), s, err.Error())
-			fmt.Fprintf(conn, "%s: %s.\n", s, err.Error())
+			fmt.Fprintf(conn, "%s: %s.\r\n", s, err.Error())
 		}
 	}
 }
@@ -171,7 +171,7 @@ func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
 	err := t.t.ExecuteTemplate(bw, name, data)
 	if err != nil {
 		Error.Printf("Template %s error: %s", name, err.Error())
-		fmt.Fprintln(bw, "Content not available.")
+		fmt.Fprintf(bw, "Content not available.\r\n")
 	}
 	bw.Flush()
 }

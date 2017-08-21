@@ -31,7 +31,7 @@ func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 }
 
 func (t telnetCtx) debug(c textcmd.Ctx) error {
-	fmt.Fprintf(c.Writer(), "Watching log at debug level.  Press <ENTER> to end.\n\n")
+	fmt.Fprintf(c.Writer(), "Watching log at debug level.  Press <ENTER> to end.\r\n\r\n")
 	debugLoggers := []*logger{Debug, Info, Warn, Error}
 	for _, l := range debugLoggers {
 		l.addOutput(c.Writer())
@@ -43,7 +43,7 @@ func (t telnetCtx) debug(c textcmd.Ctx) error {
 	}()
 
 	t.readLine(c.Reader())
-	fmt.Fprintln(c.Writer(), "Watch log ended.")
+	fmt.Fprintf(c.Writer(), "Watch log ended.\r\n")
 
 	return nil
 }
@@ -73,7 +73,7 @@ func (t telnetCtx) loop(c textcmd.Ctx) error {
 			for e := range inEvents {
 				if e.Event == "loop" {
 					t.template(c.Writer(), "loop", e.Data)
-					fmt.Fprintf(c.Writer(), "\nWatching conditions.  Press <ENTER> to end.")
+					fmt.Fprintf(c.Writer(), "\r\nWatching conditions.  Press <ENTER> to end.")
 				}
 			}
 		}()
