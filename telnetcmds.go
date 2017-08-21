@@ -30,9 +30,19 @@ func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 	return
 }
 
-func (t telnetCtx) debug(c textcmd.Ctx) error {
-	fmt.Fprintf(c.Writer(), "Watching log at debug level.  Press <ENTER> to end.\r\n\r\n")
-	debugLoggers := []*logger{Debug, Info, Warn, Error}
+func (t telnetCtx) help(c textcmd.Ctx) error {
+	t.template(c.Writer(), "help", nil)
+
+	return nil
+}
+
+func (t telnetCtx) log(c textcmd.Ctx) error {
+	fmt.Fprintf(c.Writer(), "Watching log at %s level.  Press <ENTER> to end.\r\n\r\n", c.Arg(1))
+	debugLoggers := []*logger{Error, Warn, Info, Debug}
+	if c.Arg(1) == "trace" {
+		debugLoggers = append(debugLoggers, Trace)
+	}
+
 	for _, l := range debugLoggers {
 		l.addOutput(c.Writer())
 	}
@@ -44,12 +54,6 @@ func (t telnetCtx) debug(c textcmd.Ctx) error {
 
 	t.readLine(c.Reader())
 	fmt.Fprintf(c.Writer(), "Watch log ended.\r\n")
-
-	return nil
-}
-
-func (t telnetCtx) help(c textcmd.Ctx) error {
-	t.template(c.Writer(), "help", nil)
 
 	return nil
 }

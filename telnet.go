@@ -198,7 +198,7 @@ func telnetServer(sc serverCtx, bindAddr string) {
 	t.sh.Register("uname", t.uname)
 	t.sh.Register("up(?:time)*", t.uptime)
 	t.sh.Register("ver(?:s)*", t.ver)
-	t.sh.Register("watch[[:space:]]+debug", t.debug)
+	t.sh.Register("watch[[:space:]]+log[[:space:]]+(debug|trace)", t.log)
 	t.sh.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
 	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 

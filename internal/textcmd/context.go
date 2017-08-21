@@ -7,6 +7,7 @@ package textcmd
 import (
 	"io"
 	"net"
+	"strings"
 )
 
 // Ctx is the command context that is passed to a function.
@@ -20,7 +21,7 @@ type Ctx struct {
 // argument does not exist an empty string is returned.
 func (c Ctx) Arg(i int) (s string) {
 	if len(c.matches) > i {
-		s = c.matches[i]
+		s = strings.ToLower(c.matches[i])
 	}
 
 	return
