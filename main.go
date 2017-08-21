@@ -20,9 +20,14 @@ func main() {
 	bindAddress := flag.String("bindaddress", "[::]", "server bind address")
 	device := flag.String("device", "", "weather station device (REQUIRED)")
 	dbFile := flag.String("database", "weather.db", "sqlite database file")
+	trace := flag.Bool("trace", false, "enable trace mode")
 	flag.Parse()
 
-	if *debug {
+	switch {
+	case *trace:
+		Trace.addOutput(os.Stdout)
+		fallthrough
+	case *debug:
 		Debug.addOutput(os.Stdout)
 	}
 
