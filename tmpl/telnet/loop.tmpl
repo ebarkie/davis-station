@@ -10,9 +10,11 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq }}
 {{ printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
 {{- printf "   Humidity: %s%-3d%s%%    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor }}
 {{- printf "  Dew Point: %s%-6.2f%s°F" (colorScale .DewPoint -999 -999 67 72) .DewPoint noColor }}
+{{ if ge .OutTemp 60.0 -}}
 {{ printf " Heat Index: %s%-6.2f%s°F" (colorScale .HeatIndex -999 -999 90 100) .HeatIndex noColor }}
+{{ else -}}
 {{ printf " Wind Chill: %s%-6.2f%s°F" (colorScale .WindChill 0 32 999 999) .WindChill noColor }}
-
+{{ end }}
 {{ printf "  Solar Rad: %s%-4d%sw/m²  " (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor }}
 {{- printf "   UV Index: %s%-3.1f%s    " (colorScale .UVIndex -1 -1 5 8) .UVIndex noColor }}
 {{- printf "    ET Today: %-3.1f"  .ET.Today }}
