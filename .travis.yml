@@ -3,3 +3,7 @@ go:
   - master
 before_install:
   - go generate
+install:
+  - go get -t -v
+script:
+  - go test -v
