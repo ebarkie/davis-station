@@ -5,6 +5,7 @@
 package main
 
 import (
+	"errors"
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/events"
@@ -14,6 +15,12 @@ const (
 	loopsMin     = 3               // Minimum number of samples received before responding
 	loopsMax     = 2 * 135         // Store up to about 10 minutes of loop sample history
 	loopStaleAge = 5 * time.Minute // Stop responding if most recent loop sample was > 5 minutes
+)
+
+// Errors.
+var (
+	ErrLoopsAge = errors.New("Samples are too old")
+	ErrLoopsMin = errors.New("Not enough samples yet")
 )
 
 // serverCtx contains a shared context that is made available to

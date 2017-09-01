@@ -1,10 +1,9 @@
 {{ define "archive" -}}
-{{ if . -}}
 Trend (5 minute interval):
 
 Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm²) UV(i)
 ----------- ------- ------ ------ ------ -------------- -------- -----
-  {{- range . }}
+    {{- range . }}
 {{ .Timestamp | archiveTime -}}
 {{- printf " %-7.3f" .Bar }}
 {{- printf " %s%-6.2f%s" (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
@@ -13,9 +12,6 @@ Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm²) UV(i)
 {{- printf " %-3s at %-7s" (.WindDirPrevail | degToDir) (printf "%d/%d" .WindSpeedAvg .WindSpeedHi) }}
 {{- printf " %s%-8d%s" (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor }}
 {{- printf " %s%-5.1f%s" (colorScale .UVIndexAvg -1 -1 5 8) .UVIndexAvg noColor }}
-  {{- end }}
+    {{- end }}
 ----------- ------- ------ ------ ------ -------------- -------- -----
-{{ else -}}
-No trend data available.
-{{ end -}}
 {{ end }}

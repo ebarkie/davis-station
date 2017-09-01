@@ -11,22 +11,56 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func BenchmarkImplementedLoopBuffer(b *testing.B) {
-	for n := 0; n < b.N; n++ {
-		var lb loopBuffer
-		for i := 0; i < loopsMax*2; i++ {
-			lb.add(Loop{Seq: int64(i)})
-		}
+func loopBufferAdd(lb *loopBuffer, l int) {
+	for i := 0; i < l; i++ {
+		lb.Add(Loop{Seq: int64(i)})
 	}
 }
+
+func benchmarkLoopBufferAdd(b *testing.B, l int) {
+	for n := 0; n < b.N; n++ {
+		lb := loopBuffer{}
+		loopBufferAdd(&lb, l)
+	}
+}
+
+func BenchmarkLoopBufferAddHalf(b *testing.B) { benchmarkLoopBufferAdd(b, loopsMax/2) }
+func BenchmarkLoopBufferAddOne(b *testing.B)  { benchmarkLoopBufferAdd(b, loopsMax) }
+func BenchmarkLoopBufferAddTwo(b *testing.B)  { benchmarkLoopBufferAdd(b, loopsMax*2) }
+
+func benchmarkLoopBufferLast(b *testing.B, l int) {
+	var lb loopBuffer
+	loopBufferAdd(&lb, l)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		lb.Last()
+	}
+}
+
+func BenchmarkLoopBufferLastHalf(b *testing.B) { benchmarkLoopBufferLast(b, loopsMax/2) }
+func BenchmarkLoopBufferLastOne(b *testing.B)  { benchmarkLoopBufferLast(b, loopsMax) }
+
+func benchmarkLoopBufferLoops(b *testing.B, l int) {
+	var lb loopBuffer
+	loopBufferAdd(&lb, l)
+	b.ResetTimer()
+
+	for n := 0; n < b.N; n++ {
+		lb.Loops()
+	}
+}
+
+func BenchmarkLoopBufferLoopsHalf(b *testing.B) { benchmarkLoopBufferLoops(b, loopsMax/2) }
+func BenchmarkLoopBufferLoopsOne(b *testing.B)  { benchmarkLoopBufferLoops(b, loopsMax) }
 
 func TestLoopBuffer(t *testing.T) {
 	for added := 0; added < loopsMax+2; added++ {
 		var lb loopBuffer
-		var loops []Loop
+		loops := make([]Loop, 0)
 
 		for i := 0; i < added; i++ {
-			lb.add(Loop{Seq: int64(i)})
+			lb.Add(Loop{Seq: int64(i)})
 
 			if len(loops) >= loopsMax {
 				loops = loops[0 : len(loops)-1]
@@ -34,6 +68,6 @@ func TestLoopBuffer(t *testing.T) {
 			loops = append([]Loop{{Seq: int64(i)}}, loops...)
 		}
 
-		assert.Equal(t, loops, lb.loops(), fmt.Sprintf("Added %d does not match slice", added))
+		assert.Equal(t, loops, lb.Loops(), fmt.Sprintf("Added %d does not match slice", added))
 	}
 }

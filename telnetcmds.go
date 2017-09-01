@@ -64,10 +64,12 @@ func (t telnetCtx) loop(c textcmd.Ctx) error {
 		watch = true
 	}
 
-	l := t.lb.loops()
-	if len(l) > 0 {
-		t.template(c.Writer(), "loop", l[0])
+	numLoops, lastLoop := t.lb.Last()
+	if numLoops < loopsMin {
+		return ErrLoopsMin
 	}
+
+	t.template(c.Writer(), "loop", lastLoop)
 
 	if watch {
 		inEvents := t.eb.Subscribe(c.RemoteAddr().String())

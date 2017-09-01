@@ -105,7 +105,7 @@ func stationServer(sc serverCtx, device string) error {
 			}
 
 			// Update loop buffer
-			sc.lb.add(l)
+			sc.lb.Add(l)
 
 			// Publish to events broker
 			sc.eb.Publish(events.Event{Event: "loop", Data: l})
