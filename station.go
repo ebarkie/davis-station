@@ -62,13 +62,12 @@ func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) 
 }
 
 func stationServer(sc serverCtx, device string) error {
-	// Open and setup events channel for weather station
-	//
+	// Setup events channel for weather station.
+	var stationEvents func(serverCtx, string) (<-chan interface{}, error)
+
 	// If a device name of "/dev/null" is specified launch
 	// a primitive test server instead of attaching to the
 	// Weatherlink.
-
-	var stationEvents func(serverCtx, string) (<-chan interface{}, error)
 	if strings.ToLower(device) == "/dev/null" {
 		stationEvents = nullEvents
 	} else {
