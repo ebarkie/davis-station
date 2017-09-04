@@ -5,6 +5,7 @@
 package main
 
 import (
+	"strings"
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/events"
@@ -19,56 +20,61 @@ type Loop struct {
 	weatherlink.Loop
 }
 
-func stationEvents(sc serverCtx, device string) (ec chan interface{}, err error) {
-	// If a device name of "/dev/null" is specified launch
-	// a primitive test server instead of attaching to the
-	// Weatherlink.
-	switch device {
-	case "/dev/null":
-		Info.Print("Test poller started")
+func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+	ec := make(chan interface{})
 
-		ec = make(chan interface{})
+	// Send a mostly empty loop packet, except for a few
+	// things initialized so it passes QC,  every 2s.
+	l := weatherlink.Loop{}
+	l.Bar.Altimeter = 6.8 // QC minimums
+	l.Bar.SeaLevel = 25.0
+	l.Bar.Station = 6.8
 
-		// Send a mostly empty loop packet, except for a few
-		// things initialized so it passes QC,  every 2s.
-		l := weatherlink.Loop{}
-		l.Bar.Altimeter = 6.8 // QC minimums
-		l.Bar.SeaLevel = 25.0
-		l.Bar.Station = 6.8
-
-		go func() {
-			for {
-				ec <- l
-				time.Sleep(2 * time.Second)
-			}
-		}()
-	default:
-		Info.Print("Weatherlink poller started")
-
-		// Connect the weatherlink loggers
-		weatherlink.Trace.SetOutput(Trace)
-		weatherlink.Debug.SetOutput(Debug)
-		weatherlink.Info.SetOutput(Info)
-		weatherlink.Warn.SetOutput(Warn)
-		weatherlink.Error.SetOutput(Error)
-
-		// Open connection and start command broker
-		var wl weatherlink.Weatherlink
-		wl, err = weatherlink.Dial(device)
-		if err != nil {
-			return
+	go func() {
+		for {
+			ec <- l
+			time.Sleep(2 * time.Second)
 		}
-		defer wl.Close()
-		wl.LastDmpTime = sc.ad.Last()
-		ec = wl.Start()
-		ec <- weatherlink.CmdGetDmps
+	}()
+
+	return ec, nil
+}
+
+func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+	// Connect the weatherlink loggers
+	weatherlink.Trace.SetOutput(Trace)
+	weatherlink.Debug.SetOutput(Debug)
+	weatherlink.Info.SetOutput(Info)
+	weatherlink.Warn.SetOutput(Warn)
+	weatherlink.Error.SetOutput(Error)
+
+	// Open connection and start command broker
+	wl, err := weatherlink.Dial(device)
+	if err != nil {
+		return nil, err
 	}
 
-	return
+	wl.LastDmpTime = sc.ad.Last()
+	ec := wl.Start()
+	wl.CmdQ <- weatherlink.CmdGetDmps
+
+	return ec, nil
 }
 
 func stationServer(sc serverCtx, device string) error {
 	// Open and setup events channel for weather station
+	//
+	// If a device name of "/dev/null" is specified launch
+	// a primitive test server instead of attaching to the
+	// Weatherlink.
+
+	var stationEvents func(serverCtx, string) (<-chan interface{}, error)
+	if strings.ToLower(device) == "/dev/null" {
+		stationEvents = nullEvents
+	} else {
+		stationEvents = weatherlinkEvents
+	}
+
 	ec, err := stationEvents(sc, device)
 	if err != nil {
 		Error.Fatalf("Weatherlink command broker failed to start: %s", err.Error())
