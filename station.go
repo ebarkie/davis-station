@@ -60,6 +60,7 @@ func stationEvents(sc serverCtx, device string) (ec chan interface{}, err error)
 		}
 		defer wl.Close()
 		wl.LastDmpTime = sc.ad.Last()
+		ec <- weatherlink.CmdGetDmps
 		ec = wl.Start()
 	}
 

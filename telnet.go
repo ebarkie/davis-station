@@ -140,6 +140,7 @@ func (t *telnetCtx) parseTemplates() (err error) {
 		"longTime": func(t time.Time) string {
 			return t.Format("Monday, January 2 2006 at 15:04:05")
 		},
+		"metar": metar,
 		"sunTime": func(t time.Time) string {
 			return t.Format("15:04")
 		},
