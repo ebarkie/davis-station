@@ -5,7 +5,6 @@
 package main
 
 import (
-	"strings"
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/events"
@@ -68,7 +67,7 @@ func stationServer(sc serverCtx, device string) error {
 	// If a device name of "/dev/null" is specified launch
 	// a primitive test server instead of attaching to the
 	// Weatherlink.
-	if strings.ToLower(device) == "/dev/null" {
+	if device == "/dev/null" {
 		stationEvents = nullEvents
 	} else {
 		stationEvents = weatherlinkEvents
