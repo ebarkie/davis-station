@@ -20,6 +20,8 @@ type Loop struct {
 }
 
 func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+	Info.Print("Test poller started")
+
 	ec := make(chan interface{})
 
 	// Send a mostly empty loop packet, except for a few
@@ -40,6 +42,8 @@ func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
 }
 
 func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+	Info.Print("Weatherlink poller started")
+
 	// Connect the weatherlink loggers
 	weatherlink.Trace.SetOutput(Trace)
 	weatherlink.Debug.SetOutput(Debug)
