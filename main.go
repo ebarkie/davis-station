@@ -34,7 +34,7 @@ func main() {
 	if len(*device) == 0 {
 		flag.Usage()
 	} else {
-		Info.Print(banner)
+		Info.Println(banner)
 		server(*bindAddress, *device, *dbFile)
 	}
 }

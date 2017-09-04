@@ -20,7 +20,7 @@ type Loop struct {
 }
 
 func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
-	Info.Print("Test poller started")
+	Info.Println("Test poller started")
 
 	ec := make(chan interface{})
 
@@ -42,7 +42,7 @@ func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
 }
 
 func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) {
-	Info.Print("Weatherlink poller started")
+	Info.Println("Weatherlink poller started")
 
 	// Connect the weatherlink loggers
 	weatherlink.Trace.SetOutput(Trace)

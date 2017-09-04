@@ -46,9 +46,9 @@ func (httpCtx) logHandler(h http.Handler) http.HandlerFunc {
 
 		msg := fmt.Sprintf("HTTP connection from %s request %s %s response %d", r.RemoteAddr, r.Method, r.URL, record.status)
 		if record.status < 299 {
-			Debug.Print(msg)
+			Debug.Println(msg)
 		} else {
-			Warn.Print(msg)
+			Warn.Println(msg)
 		}
 	}
 }
