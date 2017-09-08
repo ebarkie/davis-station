@@ -101,11 +101,10 @@ Weather conditions on Sunday, June 18 2017 at 23:17:04            Seq:     4440
 
    Forecast: Partly cloudy and cooler.
 
-  Barometer: 29.518in Rising Slowly
+  Barometer: 29.518in (Rising Slowly)
 
 Temperature: 78.30 °F     Humidity: 84 %      Dew Point: 73.00 °F
  Heat Index: 82.00 °F
- Wind Chill: 78.00 °F
 
   Solar Rad: 0   w/m²     UV Index: 0.0        ET Today: 0.1
 
