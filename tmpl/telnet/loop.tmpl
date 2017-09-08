@@ -5,7 +5,7 @@ Weather conditions on {{ printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq }}
 
    Forecast: {{ .Forecast }}
 
-{{ printf "  Barometer: %-6.3fin (%s)" .Bar.Station .Bar.Trend }}
+{{ printf "  Barometer: %-6.3fin (%s)" .Bar.SeaLevel .Bar.Trend }}
 
 {{ printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
 {{- printf "   Humidity: %s%-3d%s%%    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor }}
