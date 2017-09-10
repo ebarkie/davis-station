@@ -125,8 +125,9 @@ func (telnetCtx) degToDir(deg int) string {
 }
 
 // parseTemplates sets up all the telnet template functions and
-// parses the templates for later execution.
-func (t *telnetCtx) parseTemplates() (err error) {
+// parses the templates from the files identified by the pattern
+// for later execution.
+func (t *telnetCtx) parseTemplates(p string) (err error) {
 	fmap := template.FuncMap{
 		"degToDir":   t.degToDir,
 		"colorScale": t.colorScale,
@@ -145,7 +146,7 @@ func (t *telnetCtx) parseTemplates() (err error) {
 			return t.Format("15:04")
 		},
 	}
-	t.t, err = template.New("").Funcs(fmap).ParseGlob("tmpl/telnet/*.tmpl")
+	t.t, err = template.New("").Funcs(fmap).ParseGlob(p)
 
 	return
 }
@@ -179,13 +180,13 @@ func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
 
 // telnetServer starts the telnet server.  It's blocking and should be called as
 // a goroutine.
-func telnetServer(sc serverCtx, bindAddr string) {
+func telnetServer(sc serverCtx, cfg config) {
 	// Inherit generic server context so we have access to things like
 	// archive records and loop packets.
 	t := telnetCtx{serverCtx: sc}
 
 	// Parse templates
-	err := t.parseTemplates()
+	err := t.parseTemplates(cfg.res + "/tmpl/telnet/*.tmpl")
 	if err != nil {
 		Error.Fatalf("Telnet template parse error: %s", err.Error())
 	}
@@ -204,7 +205,7 @@ func telnetServer(sc serverCtx, bindAddr string) {
 	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
 	// Listen and accept new connections
-	address := bindAddr + ":8023"
+	address := cfg.addr + ":8023"
 	Info.Printf("Telnet server started on %s", address)
 	l, err := net.Listen("tcp", address)
 	if err != nil {

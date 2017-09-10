@@ -15,26 +15,37 @@ import (
 
 var banner = fmt.Sprintf("Davis Instruments weather station (version %s)", version)
 
+type config struct {
+	addr  string
+	dev   string
+	db    string
+	res   string
+	debug bool
+	trace bool
+}
+
 func main() {
-	bindAddress := flag.String("bindaddress", "[::]", "server bind address")
-	dbFile := flag.String("database", "weather.db", "sqlite database file")
-	debug := flag.Bool("debug", false, "enable debug mode")
-	device := flag.String("device", "", "weather station device (REQUIRED)")
-	trace := flag.Bool("trace", false, "enable trace mode")
+	var cfg config
+	flag.StringVar(&cfg.addr, "addr", "[::]", "server bind address")
+	flag.StringVar(&cfg.dev, "dev", "", "weather station device (REQUIRED)")
+	flag.StringVar(&cfg.db, "db", "weather.db", "bolt database file")
+	flag.StringVar(&cfg.res, "res", ".", "resources path")
+	flag.BoolVar(&cfg.debug, "debug", false, "enable debug mode")
+	flag.BoolVar(&cfg.trace, "trace", false, "enable trace mode")
 	flag.Parse()
 
 	switch {
-	case *trace:
+	case cfg.trace:
 		Trace.addOutput(os.Stdout)
 		fallthrough
-	case *debug:
+	case cfg.debug:
 		Debug.addOutput(os.Stdout)
 	}
 
-	if len(*device) == 0 {
+	if cfg.dev == "" {
 		flag.Usage()
 	} else {
 		Info.Println(banner)
-		server(*bindAddress, *device, *dbFile)
+		server(cfg)
 	}
 }

@@ -32,10 +32,10 @@ type serverCtx struct {
 	startTime time.Time
 }
 
-func server(bindAddr string, device string, dbFile string) {
-	ad, err := OpenArchive(dbFile)
+func server(cfg config) {
+	ad, err := OpenArchive(cfg.db)
 	if err != nil {
-		Error.Fatalf("Unable to open archive file %s: %s", dbFile, err.Error())
+		Error.Fatalf("Unable to open archive file %s: %s", cfg.db, err.Error())
 	}
 	defer ad.Close()
 	sc := serverCtx{
@@ -46,13 +46,13 @@ func server(bindAddr string, device string, dbFile string) {
 	}
 
 	// HTTP server
-	go httpServer(sc, bindAddr)
+	go httpServer(sc, cfg)
 
 	// Telnet server
-	go telnetServer(sc, bindAddr)
+	go telnetServer(sc, cfg)
 
 	// Weather station server
-	go stationServer(sc, device)
+	go stationServer(sc, cfg)
 
 	select {}
 }

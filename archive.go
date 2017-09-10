@@ -105,8 +105,8 @@ func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan weatherlink.
 }
 
 // OpenArchive opens up the archive database.
-func OpenArchive(filename string) (ad ArchiveData, err error) {
-	ad.db, err = bolt.Open(filename, 0600, nil)
+func OpenArchive(file string) (ad ArchiveData, err error) {
+	ad.db, err = bolt.Open(file, 0600, nil)
 	return
 }
 

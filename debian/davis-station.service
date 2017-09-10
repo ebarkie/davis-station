@@ -6,7 +6,7 @@ Type=simple
 User=wx
 Group=wx
 EnvironmentFile=-/etc/default/davis-station
-ExecStart=/usr/bin/davis-station -database $DATABASE -device $DEVICE $EXTRA_OPTS
+ExecStart=/usr/bin/davis-station -db $DB -dev $DEV -res /usr/share/davis-station $EXTRA_OPTS
 
 [Install]
 WantedBy=multi-user.target

@@ -19,7 +19,7 @@ type Loop struct {
 	weatherlink.Loop
 }
 
-func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+func nullEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 	Info.Println("Test poller started")
 
 	ec := make(chan interface{})
@@ -41,7 +41,7 @@ func nullEvents(sc serverCtx, device string) (<-chan interface{}, error) {
 	return ec, nil
 }
 
-func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) {
+func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 	Info.Println("Weatherlink poller started")
 
 	// Connect the weatherlink loggers
@@ -52,7 +52,7 @@ func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) 
 	weatherlink.Error.SetOutput(Error)
 
 	// Open connection and start command broker
-	wl, err := weatherlink.Dial(device)
+	wl, err := weatherlink.Dial(dev)
 	if err != nil {
 		return nil, err
 	}
@@ -64,20 +64,20 @@ func weatherlinkEvents(sc serverCtx, device string) (<-chan interface{}, error) 
 	return ec, nil
 }
 
-func stationServer(sc serverCtx, device string) error {
+func stationServer(sc serverCtx, cfg config) error {
 	// Setup events channel for weather station.
 	var stationEvents func(serverCtx, string) (<-chan interface{}, error)
 
 	// If a device name of "/dev/null" is specified launch
 	// a primitive test server instead of attaching to the
 	// Weatherlink.
-	if device == "/dev/null" {
+	if cfg.dev == "/dev/null" {
 		stationEvents = nullEvents
 	} else {
 		stationEvents = weatherlinkEvents
 	}
 
-	ec, err := stationEvents(sc, device)
+	ec, err := stationEvents(sc, cfg.dev)
 	if err != nil {
 		Error.Fatalf("Weatherlink command broker failed to start: %s", err.Error())
 		return err

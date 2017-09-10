@@ -31,18 +31,20 @@ Refer to the [contrib](contrib) directory for a sample systemd service.
 
 ```
 Usage of ./davis-station:
-  -bindaddress string
-        server bind address (default "[::]")
-  -database string
-        sqlite database file (default "weather.db")
+  -addr string
+    	server bind address (default "[::]")
+  -db string
+    	bolt database file (default "weather.db")
   -debug
-        enable debug mode
-  -device string
-        weather station device (REQUIRED)
+    	enable debug mode
+  -dev string
+    	weather station device (REQUIRED)
+  -res string
+    	resources path (default ".")
   -trace
-        enable trace mode
+    	enable trace mode
 
-$ ./davis-station -device /dev/ttyUSB0
+$ ./davis-station -dev /dev/ttyUSB0
 ```
 
 Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for HTTP endpoint information.
