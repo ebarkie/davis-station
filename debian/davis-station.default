@@ -1,0 +1,6 @@
+# Default settings for davis-station.
+
+DATABASE="/var/lib/davis-station/weather.db"
+DEVICE="/dev/ttyUSB0"
+
+EXTRA_OPTS=""

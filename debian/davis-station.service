@@ -1,0 +1,12 @@
+[Unit]
+Description=Davis Instruments weather station
+
+[Service]
+Type=simple
+User=wx
+Group=wx
+EnvironmentFile=-/etc/default/davis-station
+ExecStart=/usr/bin/davis-station -database $DATABASE -device $DEVICE $EXTRA_OPTS
+
+[Install]
+WantedBy=multi-user.target

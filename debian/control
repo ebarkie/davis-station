@@ -1,0 +1,20 @@
+Source: davis-station
+Section: science
+Priority: extra
+Maintainer: Eric Barkie <ebarkie@users.noreply.github.com>
+Build-Depends: debhelper (>= 10),
+               dh-golang,
+               git,
+               golang-any
+Standards-Version: 4.0.0
+Homepage: https://github.com/ebarkie/davis-station
+XS-Go-Import-Path: github.com/ebarkie/davis-station
+
+Package: davis-station
+Architecture: any
+Built-Using: ${misc:Built-Using}
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+         adduser
+Description: Davis Instruments weather station
+ A Modern Personal Weather Station written in Go.
