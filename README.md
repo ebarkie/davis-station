@@ -17,18 +17,23 @@ Features include:
 * All data is delivered in structured and easily parsable JSON.
 * Telnet server for direct access to data and debugging the sever.
 
-## Installation
+## Building
 
-```
+### From source
+```bash
 $ go get
 $ go generate
 $ go build
 ```
 
-Refer to the [contrib](contrib) directory for a sample systemd service.
+### Debian/Ubuntu packages
+```bash
+$ debuild -uc -us -b
+```
 
 ## Usage
 
+### Daemon
 ```
 Usage of ./davis-station:
   -addr string
@@ -47,8 +52,10 @@ Usage of ./davis-station:
 $ ./davis-station -dev /dev/ttyUSB0
 ```
 
+### HTTP
 Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for HTTP endpoint information.
 
+### Telnet
 ```
 $ telnet wx 8023
 Trying 192.168.1.254...
