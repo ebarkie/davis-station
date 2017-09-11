@@ -1,6 +1,12 @@
 # Default settings for davis-station.
 
+# Server bind address
+ADDR="[::]"
+
+# Bolt database file
 DB="/var/lib/davis-station/weather.db"
+
+# Weather station device
 DEV="/dev/ttyUSB0"
 
 EXTRA_OPTS=""
