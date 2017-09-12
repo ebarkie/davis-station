@@ -20,6 +20,7 @@ Features include:
 ## Building
 
 ### From source
+
 ```bash
 $ go get
 $ go generate
@@ -27,6 +28,7 @@ $ go build
 ```
 
 ### Debian/Ubuntu packages
+
 ```bash
 $ debuild -uc -us -b
 ```
@@ -34,6 +36,7 @@ $ debuild -uc -us -b
 ## Usage
 
 ### Daemon
+
 ```
 Usage of ./davis-station:
   -addr string
@@ -53,9 +56,11 @@ $ ./davis-station -dev /dev/ttyUSB0
 ```
 
 ### HTTP
+
 Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for HTTP endpoint information.
 
 ### Telnet
+
 ```
 $ telnet wx 8023
 Trying 192.168.1.254...
