@@ -62,9 +62,9 @@ Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercon
 ### Telnet
 
 ```
-$ telnet wx 8023
+$ telnet localhost 8023
 Trying 192.168.1.254...
-Connected to wx.
+Connected to localhost.
 Escape character is '^]'.
  __      ______  ___
 /  \    /  \   \/  /
