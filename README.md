@@ -19,7 +19,7 @@ Features include:
 
 ## Building
 
-### From source
+### Binary from source
 
 ```bash
 $ go get
