@@ -61,76 +61,7 @@ Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercon
 
 ### Telnet
 
-```
-$ telnet localhost 8023
-Trying 192.168.1.254...
-Connected to localhost.
-Escape character is '^]'.
- __      ______  ___
-/  \    /  \   \/  /
-\   \/\/   /\     /   Davis Instruments weather station (version adf5005)
- \        / /     \   127.0.0.1:8023
-  \__/\  / /___/\  \
-       \/        \_/
-
-> help
-Command	                Argument(s)     Description
------------------------ --------------- ------------------------------------
-archive, trend          [h=2]           Show last h hours of observations
-                                        at 5 minute intervals
-cond, loop                              Show latest conditions in detail
-date, time                              Show current date and time
-?, help                                 Show this help information
-logoff, logout, quit                    Gracefully close the connection
-uname                                   Show server information
-up, uptime                              Show server uptime
-ver, vers                               Show server version
-watch cond, loop                        Continuously watch latest conditions
-watch log               <debug|trace>   Watch debug or trace logs
-whoami, who am i                        Show client source IP address and
-                                        port
-
-> trend 1
-Trend (5 minute interval):
-
-Timestamp   Bar(in) Tem(F) Hum(%) Rn(in) Wind/Gus(mph)  Sol(wm²) UV(i)
------------ ------- ------ ------ ------ -------------- -------- -----
-06/18 23:15 29.938  78.30  84     0.00   E   at 2/6     0        0.0  
-06/18 23:10 29.939  78.30  84     0.00   SE  at 1/7     0        0.0  
-06/18 23:05 29.942  78.40  84     0.00   ESE at 1/6     0        0.0  
-06/18 23:00 29.946  78.50  84     0.00   S   at 3/10    0        0.0  
-06/18 22:55 29.946  78.60  83     0.00   ESE at 2/7     0        0.0  
-06/18 22:50 29.941  78.70  83     0.00   SSE at 2/6     0        0.0  
-06/18 22:45 29.945  78.80  83     0.00   SSE at 3/9     0        0.0  
-06/18 22:40 29.944  79.00  83     0.00   WSW at 1/6     0        0.0  
-06/18 22:35 29.946  79.10  82     0.00   ESE at 3/10    0        0.0  
-06/18 22:30 29.941  79.30  82     0.00   ESE at 3/8     0        0.0  
-06/18 22:25 29.939  79.30  82     0.00   SE  at 4/10    0        0.0  
-06/18 22:20 29.939  79.30  83     0.00   SE  at 3/13    0        0.0  
------------ ------- ------ ------ ------ -------------- -------- -----
-
-> loop
-Weather conditions on Sunday, June 18 2017 at 23:17:04            Seq:     4440
-                      Sunrise at 05:59, sunset at 20:34
-
-   Forecast: Partly cloudy and cooler.
-
-  Barometer: 29.518in (Rising Slowly)
-
-Temperature: 78.30 °F     Humidity: 84 %      Dew Point: 73.00 °F
- Heat Index: 82.00 °F
-
-  Solar Rad: 0   w/m²     UV Index: 0.0        ET Today: 0.1
-
- Rain Today: 0.10in           Rate: 0.00in/h
-
-       Wind: 124° SE  at 8  mph
-    Gusting: 157° SSE at 1  mph
-
-> quit
-Bye!
-Connection closed by foreign host.
-```
+![Telnet Session](doc/telnet.gif)
 
 ## License
 
