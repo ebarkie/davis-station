@@ -16,7 +16,7 @@ type loopBuffer struct {
 	sync.RWMutex
 }
 
-// Add adds a wrapped loop packet to the loop buffer.  Once the
+// Add adds a Loop packet to the loop buffer.  Once the
 // buffer is full each new packet overwrites the oldest.
 func (lb *loopBuffer) Add(l Loop) {
 	lb.Lock()
