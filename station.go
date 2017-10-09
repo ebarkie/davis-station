@@ -19,28 +19,6 @@ type Loop struct {
 	weatherlink.Loop
 }
 
-func nullEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
-	Info.Println("Test poller started")
-
-	ec := make(chan interface{})
-
-	// Send a mostly empty loop packet, except for a few
-	// things initialized so it passes QC,  every 2s.
-	l := weatherlink.Loop{}
-	l.Bar.Altimeter = 6.8 // QC minimums
-	l.Bar.SeaLevel = 25.0
-	l.Bar.Station = 6.8
-
-	go func() {
-		for {
-			ec <- l
-			time.Sleep(2 * time.Second)
-		}
-	}()
-
-	return ec, nil
-}
-
 func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 	Info.Println("Weatherlink poller started")
 
@@ -66,18 +44,7 @@ func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 
 func stationServer(sc serverCtx, cfg config) error {
 	// Setup events channel for weather station.
-	var stationEvents func(serverCtx, string) (<-chan interface{}, error)
-
-	// If a device name of "/dev/null" is specified launch
-	// a primitive test server instead of attaching to the
-	// Weatherlink.
-	if cfg.dev == "/dev/null" {
-		stationEvents = nullEvents
-	} else {
-		stationEvents = weatherlinkEvents
-	}
-
-	ec, err := stationEvents(sc, cfg.dev)
+	ec, err := weatherlinkEvents(sc, cfg.dev)
 	if err != nil {
 		Error.Fatalf("Weatherlink command broker failed to start: %s", err.Error())
 		return err
