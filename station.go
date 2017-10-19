@@ -30,14 +30,14 @@ func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 	weatherlink.Error.SetOutput(Error)
 
 	// Open connection and start command broker
-	wl, err := weatherlink.Dial(dev)
+	w, err := weatherlink.Dial(dev)
 	if err != nil {
 		return nil, err
 	}
 
-	wl.LastDmpTime = sc.ad.Last()
-	ec := wl.Start()
-	wl.CmdQ <- weatherlink.CmdGetDmps
+	w.LastDmp = sc.ad.Last()
+	ec := w.Start(weatherlink.StdIdle)
+	w.CmdQ <- weatherlink.CmdGetDmps
 
 	return ec, nil
 }
