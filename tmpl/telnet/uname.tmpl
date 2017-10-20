@@ -1,7 +1,7 @@
-{{ define "uname" }} __      ______  ___
-/  \    /  \   \/  /
-\   \/\/   /\     /   {{ .Banner }}
- \        / /     \   {{ .LocalAddr }}
-  \__/\  / /___/\  \
-       \/        \_/
+{{ define "uname" }}
+     {{ template "yellow" }}\   /{{ template "default" }}
+      {{ template "yellow" }}.-.{{ template "default" }}      {{ .Banner }}
+   {{ template "yellow" }}- (   ) -{{ template "default" }}   {{ .LocalAddr }}
+      {{ template "yellow" }}`-'{{ template "default" }}
+     {{ template "yellow" }}/   \{{ template "default" }}
 {{ end }}
