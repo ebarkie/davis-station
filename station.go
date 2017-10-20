@@ -37,7 +37,7 @@ func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 
 	w.LastDmp = sc.ad.Last()
 	ec := w.Start(weatherlink.StdIdle)
-	w.CmdQ <- weatherlink.CmdGetDmps
+	w.CmdQ <- weatherlink.GetDmps
 
 	return ec, nil
 }
