@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/textcmd"
+	"github.com/ebarkie/weatherlink"
 )
 
 func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
@@ -32,6 +33,18 @@ func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 
 func (t telnetCtx) help(c textcmd.Ctx) error {
 	t.template(c.Writer(), "help", nil)
+
+	return nil
+}
+
+func (t telnetCtx) lamps(c textcmd.Ctx) error {
+	fmt.Fprintf(c.Writer(), "Turning lamps %s..", c.Arg(1))
+	if c.Arg(1) == "on" {
+		t.wl.Q <- weatherlink.LampsOn
+	} else {
+		t.wl.Q <- weatherlink.LampsOff
+	}
+	fmt.Fprintf(c.Writer(), "done.\r\n")
 
 	return nil
 }

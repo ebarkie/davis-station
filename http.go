@@ -185,8 +185,7 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// httpServer starts the HTTP server.  It's blocking and should be called as
-// a goroutine.
+// httpServer starts the HTTP server.
 func httpServer(sc serverCtx, cfg config) {
 	// Inherit generic server context so we have access to things like
 	// archive records and loop packets.

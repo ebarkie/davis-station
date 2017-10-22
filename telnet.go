@@ -178,8 +178,7 @@ func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
 	bw.Flush()
 }
 
-// telnetServer starts the telnet server.  It's blocking and should be called as
-// a goroutine.
+// telnetServer starts the telnet server.
 func telnetServer(sc serverCtx, cfg config) {
 	// Inherit generic server context so we have access to things like
 	// archive records and loop packets.
@@ -197,6 +196,7 @@ func telnetServer(sc serverCtx, cfg config) {
 	t.sh.Register("(?:\\?|help)", t.help)
 	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
 	t.sh.Register("(?:date|time)", t.time)
+	t.sh.Register("(?:lamps)[[:space:]]+(off|on)", t.lamps)
 	t.sh.Register("uname", t.uname)
 	t.sh.Register("up(?:time)*", t.uptime)
 	t.sh.Register("ver(?:s)*", t.ver)

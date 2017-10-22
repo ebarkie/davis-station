@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/events"
+	"github.com/ebarkie/weatherlink"
 )
 
 const (
@@ -29,30 +30,40 @@ type serverCtx struct {
 	ad        *ArchiveData
 	lb        *loopBuffer
 	eb        *events.Broker
+	wl        *weatherlink.Conn
 	startTime time.Time
 }
 
 func server(cfg config) {
+	// Open archive database
 	ad, err := OpenArchive(cfg.db)
 	if err != nil {
 		Error.Fatalf("Unable to open archive file %s: %s", cfg.db, err.Error())
 	}
 	defer ad.Close()
+
+	// Open weather station
+	wl, err := stationOpen(cfg.dev)
+	if err != nil {
+		Error.Fatalf("Unable to open Weatherlink: %s", err.Error())
+	}
+
 	sc := serverCtx{
 		ad:        &ad,
 		lb:        &loopBuffer{},
 		eb:        events.New(),
+		wl:        &wl,
 		startTime: time.Now(),
 	}
 
-	// HTTP server
+	// Start weather station events handler
+	go stationEvents(sc)
+
+	// Start HTTP server
 	go httpServer(sc, cfg)
 
-	// Telnet server
+	// Start Telnet server
 	go telnetServer(sc, cfg)
-
-	// Weather station server
-	go stationServer(sc, cfg)
 
 	select {}
 }

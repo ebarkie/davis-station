@@ -20,9 +20,7 @@ type Loop struct {
 	data.Loop
 }
 
-func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
-	Info.Println("Weatherlink poller started")
-
+func stationOpen(dev string) (weatherlink.Conn, error) {
 	// Connect the weatherlink loggers
 	weatherlink.Trace.SetOutput(Trace)
 	weatherlink.Debug.SetOutput(Debug)
@@ -30,26 +28,17 @@ func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
 	weatherlink.Warn.SetOutput(Warn)
 	weatherlink.Error.SetOutput(Error)
 
-	// Open connection and start command broker
-	w, err := weatherlink.Dial(dev)
-	if err != nil {
-		return nil, err
-	}
-
-	w.LastDmp = sc.ad.Last()
-	ec := w.Start(weatherlink.StdIdle)
-	w.CmdQ <- weatherlink.GetDmps
-
-	return ec, nil
+	// Return opened connection
+	return weatherlink.Dial(dev)
 }
 
-func stationServer(sc serverCtx, cfg config) error {
-	// Setup events channel for weather station.
-	ec, err := weatherlinkEvents(sc, cfg.dev)
-	if err != nil {
-		Error.Fatalf("Weatherlink command broker failed to start: %s", err.Error())
-		return err
-	}
+func stationEvents(sc serverCtx) error {
+	Info.Println("Weatherlink events started")
+
+	// Initialize last archive record and start command broker
+	sc.wl.LastDmp = sc.ad.Last()
+	ec := sc.wl.Start(weatherlink.StdIdle)
+	sc.wl.Q <- weatherlink.GetDmps
 
 	// Receive events forever
 	var seq int64
