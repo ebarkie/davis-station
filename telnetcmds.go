@@ -38,7 +38,7 @@ func (t telnetCtx) help(c textcmd.Ctx) error {
 }
 
 func (t telnetCtx) lamps(c textcmd.Ctx) error {
-	fmt.Fprintf(c.Writer(), "Turning lamps %s..", c.Arg(1))
+	fmt.Fprintf(c.Writer(), "Setting lamps %s..", c.Arg(1))
 	if c.Arg(1) == "on" {
 		t.wl.Q <- weatherlink.LampsOn
 	} else {
