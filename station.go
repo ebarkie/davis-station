@@ -9,6 +9,7 @@ import (
 
 	"github.com/ebarkie/davis-station/internal/events"
 	"github.com/ebarkie/weatherlink"
+	"github.com/ebarkie/weatherlink/data"
 )
 
 // Loop is a weatherlink.Loop with a sequence and timestamp
@@ -16,7 +17,7 @@ import (
 type Loop struct {
 	Seq       int64     `json:"sequence"`
 	Timestamp time.Time `json:"timestamp"`
-	weatherlink.Loop
+	data.Loop
 }
 
 func weatherlinkEvents(sc serverCtx, dev string) (<-chan interface{}, error) {
@@ -54,8 +55,8 @@ func stationServer(sc serverCtx, cfg config) error {
 	var seq int64
 	for e := range ec {
 		switch e.(type) {
-		case weatherlink.Archive:
-			a := e.(weatherlink.Archive)
+		case data.Archive:
+			a := e.(data.Archive)
 
 			// Add record to archive database
 			err := sc.ad.Add(a)
@@ -65,12 +66,12 @@ func stationServer(sc serverCtx, cfg config) error {
 
 			// Update events broker
 			sc.eb.Publish(events.Event{Event: "archive", Data: a})
-		case weatherlink.Loop:
+		case data.Loop:
 			// Create Loop with sequence and timestamp
 			l := Loop{}
 			l.Timestamp = time.Now()
 			l.Seq = seq
-			l.Loop = e.(weatherlink.Loop)
+			l.Loop = e.(data.Loop)
 
 			// Quality control validity check
 			qc := validityCheck(l)

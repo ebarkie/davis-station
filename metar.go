@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/units"
-	"github.com/ebarkie/weatherlink"
+	"github.com/ebarkie/weatherlink/packet"
 )
 
 // metar generates a report string for a given Loop struct.
@@ -59,9 +59,9 @@ func metar(l Loop) string {
 	s += " RMK AO1" // Automated station without a precipitation descriminator
 
 	// Pressure Rising or Falling Rapidly
-	if l.Bar.Trend == weatherlink.RisingRapid {
+	if l.Bar.Trend == packet.RisingRapid {
 		s += " PRESRR"
-	} else if l.Bar.Trend == weatherlink.FallingRapid {
+	} else if l.Bar.Trend == packet.FallingRapid {
 		s += " PRESFR"
 	}
 

@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/ebarkie/weatherlink"
+	"github.com/ebarkie/weatherlink/data"
 
 	"github.com/boltdb/bolt"
 )
@@ -20,7 +20,7 @@ type ArchiveData struct {
 }
 
 // Add adds an archive record to the database.
-func (ad ArchiveData) Add(a weatherlink.Archive) error {
+func (ad ArchiveData) Add(a data.Archive) error {
 	return ad.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("archive"))
 		if err != nil {
@@ -50,7 +50,7 @@ func (ad ArchiveData) Last() (t time.Time) {
 
 // Get returns the requested range of archive records as a slice in descending
 // order.
-func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []weatherlink.Archive) {
+func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []data.Archive) {
 	ac := ad.NewGet(begin, end)
 	for a := range ac {
 		archive = append(archive, a)
@@ -61,8 +61,8 @@ func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []weatherlink
 
 // NewGet creates a channel and sends the requested range of archive records to it
 // in descending order.
-func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan weatherlink.Archive {
-	ac := make(chan weatherlink.Archive)
+func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan data.Archive {
+	ac := make(chan data.Archive)
 
 	go func() {
 		defer close(ac)
@@ -86,7 +86,7 @@ func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan weatherlink.
 					max, _ = c.Prev()
 				}
 
-				var a weatherlink.Archive
+				var a data.Archive
 				for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
 					err := json.Unmarshal(v, &a)
 					if err != nil {
