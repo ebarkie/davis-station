@@ -16,12 +16,6 @@
 			"revisionTime": "2016-09-25T22:06:09Z"
 		},
 		{
-			"checksumSHA1": "w3qO0bz6PjbWXaRzBKIW91RZmLI=",
-			"path": "github.com/ebarkie/weatherlink",
-			"revision": "c1464f876a92da44f2e1357c1770bc8283ac3022",
-			"revisionTime": "2017-08-29T01:32:54Z"
-		},
-		{
 			"checksumSHA1": "zQwthDCaokPCqqolpCR4PdCjQo4=",
 			"path": "github.com/pkg/term",
 			"revision": "b1f72af2d63057363398bec5873d16a98b453312",
