@@ -1,0 +1,3 @@
+{{ define "error" -}}
+{{ .Cmd }}: {{ template "red" }}{{ .Err }}{{ template "default" }}
+{{ end }}

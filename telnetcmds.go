@@ -148,7 +148,7 @@ func (t telnetCtx) uptime(c textcmd.Ctx) error {
 func (t telnetCtx) ver(c textcmd.Ctx) error {
 	t.template(c.Writer(), "ver",
 		struct {
-			Version string
+			Ver string
 		}{version},
 	)
 

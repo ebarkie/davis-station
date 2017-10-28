@@ -53,7 +53,12 @@ func (t telnetCtx) commandPrompt(conn net.Conn) {
 		}
 		if err != nil {
 			Warn.Printf("Telnet command error %s: %s: %s", conn.RemoteAddr(), s, err.Error())
-			fmt.Fprintf(conn, "%s: %s.\r\n", s, err.Error())
+			t.template(conn, "error",
+				struct {
+					Cmd string
+					Err string
+				}{s, err.Error()},
+			)
 		}
 	}
 }
