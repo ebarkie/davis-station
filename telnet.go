@@ -27,8 +27,8 @@ type telnetCtx struct {
 	sh textcmd.Shell
 }
 
-// commandPrompt is the "main menu" for the telnet Conn.
-func (t telnetCtx) commandPrompt(conn net.Conn) {
+// cmdPrompt is the "main menu" for the telnet Conn.
+func (t telnetCtx) cmdPrompt(conn net.Conn) {
 	defer conn.Close()
 	defer Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
 
@@ -219,6 +219,6 @@ func telnetServer(sc serverCtx, cfg config) {
 
 	for {
 		conn, _ := l.Accept()
-		go t.commandPrompt(conn)
+		go t.cmdPrompt(conn)
 	}
 }
