@@ -97,7 +97,7 @@ func (c httpCtx) archive(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Query archive from database and return
-	archive := c.ad.Get(begin, end)
+	archive := c.ar.Get(begin, end)
 	if len(archive) < 1 {
 		w.WriteHeader(http.StatusNoContent)
 		return
@@ -109,19 +109,19 @@ func (c httpCtx) archive(w http.ResponseWriter, r *http.Request) {
 // loop is the endpoint for serving out loop samples.
 // GET /loop[?lastSequence=#]
 func (c httpCtx) loop(w http.ResponseWriter, r *http.Request) {
-	numLoops, lastLoop := c.lb.Last()
+	numLoops, lastLoop := c.lb.last()
 
 	// If there aren't enough samples (the server just started) or
 	// there were no recent updates then send a HTTP service temporarily
 	// unavailable response.
 	if numLoops < loopsMin {
-		w.Header().Set("Warning", ErrLoopsMin.Error())
+		w.Header().Set("Warning", errLoopsMin.Error())
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
 
 	if time.Since(lastLoop.Timestamp) > loopStaleAge {
-		w.Header().Set("Warning", ErrLoopsAge.Error())
+		w.Header().Set("Warning", errLoopsAge.Error())
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
 	}
@@ -149,7 +149,7 @@ func (c httpCtx) loop(w http.ResponseWriter, r *http.Request) {
 				endIndex = numLoops
 			}
 			w.Header().Set("Content-Type", "application/json")
-			j.Encode(c.lb.Loops()[0:endIndex])
+			j.Encode(c.lb.loops()[0:endIndex])
 		}
 	} else {
 		w.Header().Set("Content-Type", "application/json")

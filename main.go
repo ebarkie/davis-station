@@ -44,8 +44,9 @@ func main() {
 
 	if cfg.dev == "" {
 		flag.Usage()
-	} else {
-		Info.Println(banner)
-		server(cfg)
+		return
 	}
+
+	Info.Println(banner)
+	server(cfg)
 }

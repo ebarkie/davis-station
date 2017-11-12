@@ -25,7 +25,7 @@ func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 	}
 
 	d := time.Duration(h) * time.Hour
-	ac := t.ad.NewGet(time.Now().Add(-d), time.Now())
+	ac := t.ar.NewGet(time.Now().Add(-d), time.Now())
 	t.template(c.Writer(), "archive", ac)
 
 	return
@@ -77,9 +77,9 @@ func (t telnetCtx) loop(c textcmd.Ctx) error {
 		watch = true
 	}
 
-	numLoops, lastLoop := t.lb.Last()
+	numLoops, lastLoop := t.lb.last()
 	if numLoops < loopsMin {
-		return ErrLoopsMin
+		return errLoopsMin
 	}
 
 	t.template(c.Writer(), "loop", lastLoop)

@@ -12,9 +12,9 @@ import (
 	"github.com/ebarkie/weatherlink/data"
 )
 
-// Loop is a weatherlink.Loop with a sequence and timestamp
+// loop is a weatherlink.Loop with a sequence and timestamp
 // added in.
-type Loop struct {
+type loop struct {
 	Seq       int64     `json:"sequence"`
 	Timestamp time.Time `json:"timestamp"`
 	data.Loop
@@ -36,7 +36,7 @@ func stationEvents(sc serverCtx) error {
 	Info.Println("Weatherlink events started")
 
 	// Initialize last archive record and start command broker
-	sc.wl.LastDmp = sc.ad.Last()
+	sc.wl.LastDmp = sc.ar.Last()
 	ec := sc.wl.Start(weatherlink.StdIdle)
 	sc.wl.Q <- weatherlink.GetDmps
 
@@ -48,7 +48,7 @@ func stationEvents(sc serverCtx) error {
 			a := e.(data.Archive)
 
 			// Add record to archive database
-			err := sc.ad.Add(a)
+			err := sc.ar.Add(a)
 			if err != nil {
 				Error.Printf("Unable to add archive record to database: %s", err.Error())
 			}
@@ -57,7 +57,7 @@ func stationEvents(sc serverCtx) error {
 			sc.eb.Publish(events.Event{Event: "archive", Data: a})
 		case data.Loop:
 			// Create Loop with sequence and timestamp
-			l := Loop{}
+			l := loop{}
 			l.Timestamp = time.Now()
 			l.Seq = seq
 			l.Loop = e.(data.Loop)
@@ -71,7 +71,7 @@ func stationEvents(sc serverCtx) error {
 			}
 
 			// Update loop buffer
-			sc.lb.Add(l)
+			sc.lb.add(l)
 
 			// Publish to events broker
 			sc.eb.Publish(events.Event{Event: "loop", Data: l})

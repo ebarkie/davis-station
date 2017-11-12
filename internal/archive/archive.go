@@ -2,7 +2,7 @@
 // Use of this source code is governed by the MIT license
 // that can be found in the LICENSE file.
 
-package main
+package archive
 
 import (
 	"bytes"
@@ -14,14 +14,14 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// ArchiveData stores a handle for the archive database.
-type ArchiveData struct {
+// Records stores a handle for the archive database.
+type Records struct {
 	db *bolt.DB
 }
 
 // Add adds an archive record to the database.
-func (ad ArchiveData) Add(a data.Archive) error {
-	return ad.db.Update(func(tx *bolt.Tx) error {
+func (r Records) Add(a data.Archive) error {
+	return r.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("archive"))
 		if err != nil {
 			return err
@@ -33,8 +33,8 @@ func (ad ArchiveData) Add(a data.Archive) error {
 }
 
 // Last returns the timestamp of the most recent archive record in the database.
-func (ad ArchiveData) Last() (t time.Time) {
-	ad.db.View(func(tx *bolt.Tx) error {
+func (r Records) Last() (t time.Time) {
+	r.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("archive"))
 		if b != nil {
 			c := b.Cursor()
@@ -50,8 +50,8 @@ func (ad ArchiveData) Last() (t time.Time) {
 
 // Get returns the requested range of archive records as a slice in descending
 // order.
-func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []data.Archive) {
-	ac := ad.NewGet(begin, end)
+func (r Records) Get(begin time.Time, end time.Time) (archive []data.Archive) {
+	ac := r.NewGet(begin, end)
 	for a := range ac {
 		archive = append(archive, a)
 	}
@@ -61,13 +61,13 @@ func (ad ArchiveData) Get(begin time.Time, end time.Time) (archive []data.Archiv
 
 // NewGet creates a channel and sends the requested range of archive records to it
 // in descending order.
-func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan data.Archive {
+func (r Records) NewGet(begin time.Time, end time.Time) <-chan data.Archive {
 	ac := make(chan data.Archive)
 
 	go func() {
 		defer close(ac)
 
-		ad.db.View(func(tx *bolt.Tx) error {
+		r.db.View(func(tx *bolt.Tx) error {
 			b := tx.Bucket([]byte("archive"))
 			if b != nil {
 				c := b.Cursor()
@@ -90,7 +90,6 @@ func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan data.Archive
 				for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
 					err := json.Unmarshal(v, &a)
 					if err != nil {
-						Error.Printf("Unable to unmarshal archive record: %s", k)
 						continue
 					}
 					ac <- a
@@ -104,13 +103,13 @@ func (ad ArchiveData) NewGet(begin time.Time, end time.Time) <-chan data.Archive
 	return ac
 }
 
-// OpenArchive opens up the archive database.
-func OpenArchive(file string) (ad ArchiveData, err error) {
-	ad.db, err = bolt.Open(file, 0600, nil)
+// Open opens up the archive records database.
+func Open(file string) (r Records, err error) {
+	r.db, err = bolt.Open(file, 0600, nil)
 	return
 }
 
 // Close closes the archive database.
-func (ad ArchiveData) Close() {
-	ad.db.Close()
+func (r Records) Close() {
+	r.db.Close()
 }

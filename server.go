@@ -8,6 +8,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/ebarkie/davis-station/internal/archive"
 	"github.com/ebarkie/davis-station/internal/events"
 	"github.com/ebarkie/weatherlink"
 )
@@ -20,14 +21,14 @@ const (
 
 // Errors.
 var (
-	ErrLoopsAge = errors.New("Samples are too old")
-	ErrLoopsMin = errors.New("Not enough samples yet")
+	errLoopsAge = errors.New("Samples are too old")
+	errLoopsMin = errors.New("Not enough samples yet")
 )
 
 // serverCtx contains a shared context that is made available to
 // the HTTP endpoint handlers and telnet connections.
 type serverCtx struct {
-	ad        *ArchiveData
+	ar        *archive.Records
 	lb        *loopBuffer
 	eb        *events.Broker
 	wl        *weatherlink.Conn
@@ -36,11 +37,11 @@ type serverCtx struct {
 
 func server(cfg config) {
 	// Open archive database
-	ad, err := OpenArchive(cfg.db)
+	ar, err := archive.Open(cfg.db)
 	if err != nil {
 		Error.Fatalf("Unable to open archive file %s: %s", cfg.db, err.Error())
 	}
-	defer ad.Close()
+	defer ar.Close()
 
 	// Open weather station
 	wl, err := stationOpen(cfg.dev)
@@ -49,7 +50,7 @@ func server(cfg config) {
 	}
 
 	sc := serverCtx{
-		ad:        &ad,
+		ar:        &ar,
 		lb:        &loopBuffer{},
 		eb:        events.New(),
 		wl:        &wl,

@@ -14,7 +14,7 @@ import (
 )
 
 // metar generates a report string for a given Loop struct.
-func metar(l Loop) string {
+func metar(l loop) string {
 	// Type
 	s := "METAR"
 

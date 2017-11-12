@@ -13,7 +13,7 @@ import (
 
 func loopBufferAdd(lb *loopBuffer, l int) {
 	for i := 0; i < l; i++ {
-		lb.Add(Loop{Seq: int64(i)})
+		lb.add(Loop{Seq: int64(i)})
 	}
 }
 
@@ -34,7 +34,7 @@ func benchmarkLoopBufferLast(b *testing.B, l int) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		lb.Last()
+		lb.last()
 	}
 }
 
@@ -47,7 +47,7 @@ func benchmarkLoopBufferLoops(b *testing.B, l int) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		lb.Loops()
+		lb.loops()
 	}
 }
 
@@ -60,7 +60,7 @@ func TestLoopBuffer(t *testing.T) {
 		loops := make([]Loop, 0)
 
 		for i := 0; i < added; i++ {
-			lb.Add(Loop{Seq: int64(i)})
+			lb.add(Loop{Seq: int64(i)})
 
 			if len(loops) >= loopsMax {
 				loops = loops[0 : len(loops)-1]
@@ -68,6 +68,6 @@ func TestLoopBuffer(t *testing.T) {
 			loops = append([]Loop{{Seq: int64(i)}}, loops...)
 		}
 
-		assert.Equal(t, loops, lb.Loops(), fmt.Sprintf("Added %d does not match slice", added))
+		assert.Equal(t, loops, lb.loops(), fmt.Sprintf("Added %d does not match slice", added))
 	}
 }

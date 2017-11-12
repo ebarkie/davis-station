@@ -26,7 +26,7 @@ func (qc *qualityControl) assertRange(f string, v float64, min float64, max floa
 // validityCheck takes a Loop packet and performs a validity check using NOAA
 // criteria.  A qualityControl struct is returned indicating if it passed or not.
 // If it failed a slice of error descriptions are included.
-func validityCheck(l Loop) (qc qualityControl) {
+func validityCheck(l loop) (qc qualityControl) {
 	// National Set of Validity Check Tolerances, Internal Consistency
 	// Algorithms and Temporal Check Tolerances by Physical Element and
 	// Observation System.
