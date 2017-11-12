@@ -14,7 +14,7 @@ func TestLoopValidity(t *testing.T) {
 	a := assert.New(t)
 
 	// Invalid uninitialized loop packet
-	l := Loop{}
+	l := loop{}
 	qc := validityCheck(l)
 	a.False(qc.passed, "Uninitialized packet fails validity check")
 	a.NotNil(qc.errs, "Uninitialized packet should have errors")
