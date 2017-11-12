@@ -19,8 +19,6 @@ func (qc *qualityControl) assertRange(f string, v float64, min float64, max floa
 	if v < min || v > max {
 		qc.errs = append(qc.errs, fmt.Errorf("Range check, %f < (%s) < %f, failed for value: %f", min, f, max, v))
 	}
-
-	return
 }
 
 // validityCheck takes a Loop packet and performs a validity check using NOAA
