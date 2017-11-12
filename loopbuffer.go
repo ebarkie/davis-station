@@ -31,14 +31,11 @@ func (lb *loopBuffer) Add(l Loop) {
 
 // Last returns the number of items in the loop buffer and the
 // last one added.
-func (lb *loopBuffer) Last() (n int, l Loop) {
-	// This is a bit ugly to read but it's about 30% faster
-	// without defer and multi-assignment.
+func (lb *loopBuffer) Last() (int, Loop) {
 	lb.RLock()
-	n = lb.len
-	l = lb.buf[lb.cur]
-	lb.RUnlock()
-	return
+	defer lb.RUnlock()
+
+	return lb.len, lb.buf[lb.cur]
 }
 
 // Loops returns the loop buffer as a slice.
