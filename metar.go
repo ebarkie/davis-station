@@ -66,7 +66,7 @@ func metar(l loop) string {
 	}
 
 	// Sea Level Pressure
-	_, d := math.Modf(l.Bar.SeaLevel * 33.8637526 / 100)
+	_, d := math.Modf(units.Mb(l.Bar.SeaLevel) / 100)
 	s += fmt.Sprintf(" SLP%03.f", d*1000)
 
 	// Hourly Precipitation Amount
