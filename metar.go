@@ -25,9 +25,9 @@ func metar(l loop) string {
 	s += " AUTO" // Indicates a fully automated report with no human intervention
 
 	// Wind
-	s += fmt.Sprintf(" %03d%02.f", l.Wind.Cur.Dir, units.FromMPH(float64(l.Wind.Cur.Speed)).Kn())
-	if units.FromMPH(l.Wind.Gust.Last10MinSpeed).Kn() >= 0.50 {
-		s += fmt.Sprintf("G%02.f", units.FromMPH(l.Wind.Gust.Last10MinSpeed).Kn())
+	s += fmt.Sprintf(" %03d%02.f", l.Wind.Cur.Dir, units.Speed(float64(l.Wind.Cur.Speed)*units.MPH).Knots())
+	if units.Speed(l.Wind.Gust.Last10MinSpeed*units.MPH).Knots() >= 0.50 {
+		s += fmt.Sprintf("G%02.f", units.Speed(l.Wind.Gust.Last10MinSpeed*units.MPH).Knots())
 	}
 	s += "KT"
 
@@ -41,12 +41,12 @@ func metar(l loop) string {
 	}
 
 	// Temperature/Dew Point
-	if t := units.FromF(l.OutTemp).C(); t < 0.0 {
+	if t := units.Fahrenheit(l.OutTemp).Celsius(); t < 0.0 {
 		s += fmt.Sprintf(" M%02.f", t*-1)
 	} else {
 		s += fmt.Sprintf(" %02.f", t)
 	}
-	if t := units.FromF(l.DewPoint).C(); t < 0.0 {
+	if t := units.Fahrenheit(l.DewPoint).Celsius(); t < 0.0 {
 		s += fmt.Sprintf("/M%02.f", t*-1)
 	} else {
 		s += fmt.Sprintf("/%02.f", t)
@@ -66,7 +66,7 @@ func metar(l loop) string {
 	}
 
 	// Sea Level Pressure
-	_, d := math.Modf(units.FromMercuryIn(l.Bar.SeaLevel).Mb() / 100)
+	_, d := math.Modf(units.Pressure(l.Bar.SeaLevel*units.Inches).Millibars() / 100)
 	s += fmt.Sprintf(" SLP%03.f", d*1000)
 
 	// Hourly Precipitation Amount
@@ -80,12 +80,12 @@ func metar(l loop) string {
 	}
 
 	// Hourly Temperature and Dew Point
-	if t := units.FromF(l.OutTemp).C(); t < 0.0 {
+	if t := units.Fahrenheit(l.OutTemp).Celsius(); t < 0.0 {
 		s += fmt.Sprintf(" T1%03.f", t*-10)
 	} else {
 		s += fmt.Sprintf(" T0%03.f", t*10)
 	}
-	if t := units.FromF(l.DewPoint).C(); t < 0.0 {
+	if t := units.Fahrenheit(l.DewPoint).Celsius(); t < 0.0 {
 		s += fmt.Sprintf("1%03.f", t*-10)
 	} else {
 		s += fmt.Sprintf("0%03.f", t*10)
