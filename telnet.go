@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2017 Eric Barkie. All rights reserved.
+// Copyright (c) 2016 Eric Barkie. All rights reserved.
 // Use of this source code is governed by the MIT license
 // that can be found in the LICENSE file.
 
@@ -196,11 +196,12 @@ func telnetServer(sc serverCtx, cfg config) {
 	}
 
 	// Register shell commands
+	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
+	t.sh.Register("(?:\\?|help)", t.help)
 	t.sh.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
 	t.sh.Register("(?:cond|loop)", t.loop)
-	t.sh.Register("(?:\\?|help)", t.help)
-	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
 	t.sh.Register("(?:date|time)", t.time)
+	t.sh.Register("health", t.health)
 	t.sh.Register("(?:lamps)[[:space:]]+(off|on)", t.lamps)
 	t.sh.Register("uname", t.uname)
 	t.sh.Register("up(?:time)*", t.uptime)

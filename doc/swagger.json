@@ -407,7 +407,7 @@
           "type": "number",
           "format": "double"
         },
-        "transmitterStatus": {
+        "transmittersLow": {
           "type": "integer",
           "format": "int64"
         }
