@@ -1,5 +1,5 @@
 {{ define "health" -}}
-Batteries:
+Battery:
 
        Console: {{ .Bat.ConsoleVoltage }} V
 {{ if not .Bat.TransLow }}  Transmitters: {{ template "green" }}OK{{ template "default" }}
