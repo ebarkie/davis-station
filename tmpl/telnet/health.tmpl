@@ -1,7 +1,7 @@
 {{ define "health" -}}
 Battery:
 
-       Console: {{ .Bat.ConsoleVoltage }} V
+       Console: {{ .Bat.ConsoleVoltage }}V
 {{ if not .Bat.TransLow }}  Transmitters: {{ template "green" }}OK{{ template "default" }}
 {{ else }}  Transmitters: {{ template "red" -}}
     {{ range $index, $trans := .Bat.TransLow -}}
