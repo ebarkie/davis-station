@@ -1,31 +1,31 @@
-{{ define "loop" }}
-{{ template "clear" -}}
-Weather conditions on {{ printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq }}
-                      Sunrise at {{ .Sunrise | sunTime }}, sunset at {{ .Sunset | sunTime }}
+{{define "loop"}}
+{{template "clear" -}}
+Weather conditions on {{printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq}}
+                      Sunrise at {{.Sunrise | sunTime}}, sunset at {{.Sunset | sunTime}}
 
-   Forecast: {{ .Forecast }}
+   Forecast: {{.Forecast}}
 
-{{ printf "  Barometer: %-6.3fin (%s)" .Bar.SeaLevel .Bar.Trend }}
+{{printf "  Barometer: %-6.3fin (%s)" .Bar.SeaLevel .Bar.Trend}}
 
-{{ printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor }}
-{{- printf "   Humidity: %s%-3d%s%%    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor }}
-{{- printf "  Dew Point: %s%-6.2f%s°F" (colorScale .DewPoint -999 -999 67 72) .DewPoint noColor }}
-{{ if ge .OutTemp 60.0 -}}
-{{ printf " Heat Index: %s%-6.2f%s°F" (colorScale .HeatIndex -999 -999 90 100) .HeatIndex noColor }}
-{{ else -}}
-{{ printf " Wind Chill: %s%-6.2f%s°F" (colorScale .WindChill 0 32 999 999) .WindChill noColor }}
-{{ end }}
-{{ printf "  Solar Rad: %s%-4d%sw/m²  " (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor }}
-{{- printf "   UV Index: %s%-3.1f%s    " (colorScale .UVIndex -1 -1 5 8) .UVIndex noColor }}
-{{- printf "    ET Today: %-3.1f"  .ET.Today }}
+{{printf "Temperature: %s%-6.2f%s°F  "  (colorScale .OutTemp 30 40 80 90) .OutTemp noColor}}
+{{- printf "   Humidity: %s%-3d%s%%    " (colorScale .OutHumidity 10 20 80 90) .OutHumidity noColor}}
+{{- printf "  Dew Point: %s%-6.2f%s°F" (colorScale .DewPoint -999 -999 67 72) .DewPoint noColor}}
+{{if ge .OutTemp 60.0 -}}
+{{printf " Heat Index: %s%-6.2f%s°F" (colorScale .HeatIndex -999 -999 90 100) .HeatIndex noColor}}
+{{else -}}
+{{printf " Wind Chill: %s%-6.2f%s°F" (colorScale .WindChill 0 32 999 999) .WindChill noColor}}
+{{end}}
+{{printf "  Solar Rad: %s%-4d%sw/m²  " (colorScale .SolarRad -1 -1 900 1200) .SolarRad noColor}}
+{{- printf "   UV Index: %s%-3.1f%s    " (colorScale .UVIndex -1 -1 5 8) .UVIndex noColor}}
+{{- printf "    ET Today: %-3.1f"  .ET.Today}}
 
-{{ printf " Rain Today: %s%-4.2f%sin  " (highlight .Rain.Accum.Today) .Rain.Accum.Today noColor }}
-{{- printf "         Rate: %s%-4.2f%sin/h" (colorScale .Rain.Rate -1 -1 0.01 1) .Rain.Rate noColor }}
+{{printf " Rain Today: %s%-4.2f%sin  " (highlight .Rain.Accum.Today) .Rain.Accum.Today noColor}}
+{{- printf "         Rate: %s%-4.2f%sin/h" (colorScale .Rain.Rate -1 -1 0.01 1) .Rain.Rate noColor}}
 
-{{ printf "       Wind: %-3d° %-3s" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir) }}
-{{- printf " at %s%-3d%smph" (colorScale .Wind.Cur.Speed -1 -1 8 19) .Wind.Cur.Speed noColor }}
-{{ printf "    Gusting: %-3d° %-3s" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir) }}
-{{- printf " at %s%-3.0f%smph" (colorScale .Wind.Gust.Last10MinSpeed -1 -1 19 32) .Wind.Gust.Last10MinSpeed noColor }}
+{{printf "       Wind: %-3d° %-3s" .Wind.Cur.Dir (.Wind.Cur.Dir | degToDir)}}
+{{- printf " at %s%-3d%smph" (colorScale .Wind.Cur.Speed -1 -1 8 19) .Wind.Cur.Speed noColor}}
+{{printf "    Gusting: %-3d° %-3s" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir)}}
+{{- printf " at %s%-3.0f%smph" (colorScale .Wind.Gust.Last10MinSpeed -1 -1 19 32) .Wind.Gust.Last10MinSpeed noColor}}
 
-{{ metar . }}
-{{ end }}
+{{metar .}}
+{{end}}
