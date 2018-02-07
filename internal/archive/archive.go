@@ -19,33 +19,32 @@ type Records struct {
 	db *bolt.DB
 }
 
+// Open opens up the archive records database.
+func Open(file string) (r Records, err error) {
+	r.db, err = bolt.Open(file, 0600, nil)
+	return
+}
+
 // Add adds an archive record to the database.
 func (r Records) Add(a data.Archive) error {
 	return r.db.Update(func(tx *bolt.Tx) error {
+		encoded, err := json.Marshal(a)
+		if err != nil {
+			return err
+		}
+
 		b, err := tx.CreateBucketIfNotExists([]byte("archive"))
 		if err != nil {
 			return err
 		}
 
-		encoded, _ := json.Marshal(a)
 		return b.Put([]byte(a.Timestamp.In(time.UTC).Format(time.RFC3339)), encoded)
 	})
 }
 
-// Last returns the timestamp of the most recent archive record in the database.
-func (r Records) Last() (t time.Time) {
-	r.db.View(func(tx *bolt.Tx) error {
-		b := tx.Bucket([]byte("archive"))
-		if b != nil {
-			c := b.Cursor()
-			k, _ := c.Last()
-			t, _ = time.Parse(time.RFC3339, string(k))
-			t = t.Local()
-		}
-		return nil
-	})
-
-	return
+// Close closes the archive database.
+func (r Records) Close() error {
+	return r.db.Close()
 }
 
 // Get returns the requested range of archive records as a slice in descending
@@ -55,6 +54,23 @@ func (r Records) Get(begin time.Time, end time.Time) (archive []data.Archive) {
 	for a := range ac {
 		archive = append(archive, a)
 	}
+
+	return
+}
+
+// Last returns the timestamp of the most recent archive record in the database.
+func (r Records) Last() (t time.Time) {
+	r.db.View(func(tx *bolt.Tx) (err error) {
+		b := tx.Bucket([]byte("archive"))
+		if b == nil {
+			return
+		}
+
+		k, _ := b.Cursor().Last()
+		t, err = time.ParseInLocation(time.RFC3339, string(k), time.Local)
+
+		return
+	})
 
 	return
 }
@@ -90,6 +106,7 @@ func (r Records) NewGet(begin time.Time, end time.Time) <-chan data.Archive {
 				for k, v := c.Seek(max); k != nil && bytes.Compare(k, min) >= 0; k, v = c.Prev() {
 					err := json.Unmarshal(v, &a)
 					if err != nil {
+						// Silently skip corrupt records.
 						continue
 					}
 					ac <- a
@@ -101,15 +118,4 @@ func (r Records) NewGet(begin time.Time, end time.Time) <-chan data.Archive {
 	}()
 
 	return ac
-}
-
-// Open opens up the archive records database.
-func Open(file string) (r Records, err error) {
-	r.db, err = bolt.Open(file, 0600, nil)
-	return
-}
-
-// Close closes the archive database.
-func (r Records) Close() {
-	r.db.Close()
 }
