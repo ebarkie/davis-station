@@ -67,7 +67,11 @@ func (r Records) Last() (t time.Time) {
 		}
 
 		k, _ := b.Cursor().Last()
-		t, err = time.ParseInLocation(time.RFC3339, string(k), time.Local)
+		t, err = time.Parse(time.RFC3339, string(k))
+		if err != nil {
+			return
+		}
+		t = t.Local()
 
 		return
 	})
