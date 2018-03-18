@@ -26,7 +26,7 @@ type config struct {
 
 func main() {
 	var cfg config
-	flag.StringVar(&cfg.addr, "addr", "[::]", "server bind address")
+	flag.StringVar(&cfg.addr, "addr", "", "server bind address")
 	flag.StringVar(&cfg.dev, "dev", "", "weather station device (REQUIRED)")
 	flag.StringVar(&cfg.db, "db", "weather.db", "bolt database file")
 	flag.StringVar(&cfg.res, "res", ".", "resources path")

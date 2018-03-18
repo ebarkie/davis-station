@@ -211,7 +211,7 @@ func telnetServer(sc serverCtx, cfg config) {
 	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
 
 	// Listen and accept new connections
-	address := cfg.addr + ":8023"
+	address := net.JoinHostPort(cfg.addr, "8023")
 	Info.Printf("Telnet server started on %s", address)
 	l, err := net.Listen("tcp", address)
 	if err != nil {

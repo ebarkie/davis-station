@@ -9,6 +9,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
 	//_ "net/http/pprof"
 	"strconv"
@@ -198,7 +199,7 @@ func httpServer(sc serverCtx, cfg config) {
 
 	// Listen and accept new connections
 	s := http.Server{
-		Addr:    cfg.addr + ":8080",
+		Addr:    net.JoinHostPort(cfg.addr, "8080"),
 		Handler: c.logHandler(http.DefaultServeMux),
 	}
 	Info.Printf("HTTP server started on %s", s.Addr)
