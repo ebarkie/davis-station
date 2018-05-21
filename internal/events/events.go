@@ -16,8 +16,8 @@ type Broker struct {
 
 // Event represents an event that occurred.
 type Event struct {
-	Event string      // "archive", "loop", ...
-	Data  interface{} // Either weatherlink.Archive or WrappedLoop
+	Name string      // "archive", "loop", ...
+	Data interface{} // Either weatherlink.Archive or WrappedLoop
 }
 
 type sub struct {

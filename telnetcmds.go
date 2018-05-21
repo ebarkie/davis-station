@@ -15,10 +15,10 @@ import (
 	"github.com/ebarkie/weatherlink/data"
 )
 
-func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
+func (t telnetCtx) archive(e textcmd.Env) (err error) {
 	// Default archive period is 2 hours
 	h := 2
-	if a := c.Arg(1); a != "" {
+	if a := e.Arg(1); a != "" {
 		h, err = strconv.Atoi(a)
 		if err != nil {
 			return
@@ -27,15 +27,15 @@ func (t telnetCtx) archive(c textcmd.Ctx) (err error) {
 
 	d := time.Duration(h) * time.Hour
 	ac := t.ar.NewGet(time.Now().Add(-d), time.Now())
-	t.template(c.Writer(), "archive", ac)
+	t.template(e, "archive", ac)
 
 	return
 }
 
-func (t telnetCtx) health(c textcmd.Ctx) error {
+func (t telnetCtx) health(e textcmd.Env) error {
 	_, lastLoop := t.lb.last()
 
-	t.template(c.Writer(), "health",
+	t.template(e, "health",
 		struct {
 			Bat data.LoopBat
 		}{lastLoop.Bat},
@@ -44,49 +44,49 @@ func (t telnetCtx) health(c textcmd.Ctx) error {
 	return nil
 }
 
-func (t telnetCtx) help(c textcmd.Ctx) error {
-	t.template(c.Writer(), "help", nil)
+func (t telnetCtx) help(e textcmd.Env) error {
+	t.template(e, "help", nil)
 
 	return nil
 }
 
-func (t telnetCtx) lamps(c textcmd.Ctx) error {
-	fmt.Fprintf(c.Writer(), "Setting lamps %s..", c.Arg(1))
-	if c.Arg(1) == "on" {
+func (t telnetCtx) lamps(e textcmd.Env) error {
+	fmt.Fprintf(e, "Setting lamps %s..", e.Arg(1))
+	if e.Arg(1) == "on" {
 		t.wl.Q <- weatherlink.LampsOn
 	} else {
 		t.wl.Q <- weatherlink.LampsOff
 	}
-	fmt.Fprintf(c.Writer(), "done.\r\n")
+	fmt.Fprintf(e, "done.\r\n")
 
 	return nil
 }
 
-func (t telnetCtx) log(c textcmd.Ctx) error {
-	fmt.Fprintf(c.Writer(), "Watching log at %s level.  Press <ENTER> to end.\r\n\r\n", c.Arg(1))
+func (t telnetCtx) log(e textcmd.Env) error {
+	fmt.Fprintf(e, "Watching log at %s level.  Press any key to end.\r\n\r\n", e.Arg(1))
 	debugLoggers := []*logger{Error, Warn, Info, Debug}
-	if c.Arg(1) == "trace" {
+	if e.Arg(1) == "trace" {
 		debugLoggers = append(debugLoggers, Trace)
 	}
 
 	for _, l := range debugLoggers {
-		l.addOutput(c.Writer())
+		l.addOutput(&e)
 	}
 	defer func() {
 		for _, l := range debugLoggers {
-			l.removeOutput(c.Writer())
+			l.removeOutput(&e)
 		}
 	}()
 
-	t.readLine(c.Reader())
-	fmt.Fprintf(c.Writer(), "Watch log ended.\r\n")
+	t.readOne(e)
+	fmt.Fprintf(e, "Watch log ended.\r\n")
 
 	return nil
 }
 
-func (t telnetCtx) loop(c textcmd.Ctx) error {
+func (t telnetCtx) loop(e textcmd.Env) error {
 	watch := false
-	if a := c.Arg(1); a == "watch" {
+	if a := e.Arg(1); a == "watch" {
 		watch = true
 	}
 
@@ -95,35 +95,36 @@ func (t telnetCtx) loop(c textcmd.Ctx) error {
 		return errLoopsMin
 	}
 
-	t.template(c.Writer(), "loop", lastLoop)
+	t.template(e, "loop", lastLoop)
 
 	if watch {
-		inEvents := t.eb.Subscribe(c.RemoteAddr().String())
-		defer t.eb.Unsubscribe(inEvents)
+		events := t.eb.Subscribe(e.RemoteAddr().String())
+		defer t.eb.Unsubscribe(events)
 
 		go func() {
-			for e := range inEvents {
-				if e.Event == "loop" {
-					t.template(c.Writer(), "loop", e.Data)
-					fmt.Fprintf(c.Writer(), "\r\nWatching conditions.  Press <ENTER> to end.")
+			for ev := range events {
+				if ev.Name == "loop" {
+					t.template(e, "loop", ev.Data)
+					fmt.Fprintf(e, "\r\nWatching conditions.  Press any key to end.")
 				}
 			}
 		}()
 
-		t.readLine(c.Reader())
+		t.readOne(e)
+		fmt.Fprintf(e, "\r\n")
 	}
 
 	return nil
 }
 
-func (t telnetCtx) quit(c textcmd.Ctx) error {
-	t.template(c.Writer(), "quit", nil)
+func (t telnetCtx) quit(e textcmd.Env) error {
+	t.template(e, "quit", nil)
 
 	return textcmd.ErrCmdQuit
 }
 
-func (t telnetCtx) time(c textcmd.Ctx) error {
-	t.template(c.Writer(), "time",
+func (t telnetCtx) time(e textcmd.Env) error {
+	t.template(e, "time",
 		struct {
 			Time time.Time
 		}{time.Now()},
@@ -132,23 +133,23 @@ func (t telnetCtx) time(c textcmd.Ctx) error {
 	return nil
 }
 
-func (t telnetCtx) uname(c textcmd.Ctx) error {
-	t.template(c.Writer(), "uname",
+func (t telnetCtx) uname(e textcmd.Env) error {
+	t.template(e, "uname",
 		struct {
 			Banner    string
 			LocalAddr net.Addr
-		}{banner, c.LocalAddr()},
+		}{banner, e.LocalAddr()},
 	)
 
 	return nil
 }
 
-func (t telnetCtx) uptime(c textcmd.Ctx) error {
+func (t telnetCtx) uptime(e textcmd.Env) error {
 	// Round uptime down to nearest second
 	uptime := time.Since(t.startTime)
 	uptime = uptime - (uptime % time.Second)
 
-	t.template(c.Writer(), "uptime",
+	t.template(e, "uptime",
 		struct {
 			Uptime    time.Duration
 			StartTime time.Time
@@ -158,8 +159,8 @@ func (t telnetCtx) uptime(c textcmd.Ctx) error {
 	return nil
 }
 
-func (t telnetCtx) ver(c textcmd.Ctx) error {
-	t.template(c.Writer(), "ver",
+func (t telnetCtx) ver(e textcmd.Env) error {
+	t.template(e, "ver",
 		struct {
 			Ver string
 		}{version},
@@ -168,12 +169,12 @@ func (t telnetCtx) ver(c textcmd.Ctx) error {
 	return nil
 }
 
-func (t telnetCtx) whoami(c textcmd.Ctx) error {
-	t.template(c.Writer(), "whoami",
+func (t telnetCtx) whoami(e textcmd.Env) error {
+	t.template(e, "whoami",
 		struct {
 			RemoteAddr net.Addr
 		}{
-			c.RemoteAddr(),
+			e.RemoteAddr(),
 		},
 	)
 

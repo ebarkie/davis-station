@@ -54,7 +54,7 @@ func stationEvents(sc serverCtx) error {
 			}
 
 			// Update events broker
-			sc.eb.Publish(events.Event{Event: "archive", Data: a})
+			sc.eb.Publish(events.Event{Name: "archive", Data: a})
 		case data.Loop:
 			// Create Loop with sequence and timestamp
 			l := loop{}
@@ -74,7 +74,7 @@ func stationEvents(sc serverCtx) error {
 			sc.lb.add(l)
 
 			// Publish to events broker
-			sc.eb.Publish(events.Event{Event: "loop", Data: l})
+			sc.eb.Publish(events.Event{Name: "loop", Data: l})
 
 			// Increment loop sequence - this intentionally only occurs
 			// if it passed QC.

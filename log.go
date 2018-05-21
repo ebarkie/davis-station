@@ -5,6 +5,7 @@
 package main
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,11 +13,10 @@ import (
 	"sync"
 )
 
-// logger wraps the standard Go logger with our own io.Writer
-// interface that allows for multiple writers.  Telnet connections
-// use this to temporarily subscribe to debug or trace.
+// logger wraps the standard Logger with a MultiWriter.  Telnet
+// connections use this to temporarily subscribe to debug or trace.
 type logger struct {
-	*log.Logger              // Go logger
+	*log.Logger              // Logger
 	writers      []io.Writer // Slice of writers that need to be written to
 	sync.RWMutex             // Mutex to coordinate writers changes
 }
@@ -60,17 +60,11 @@ func (l *logger) removeOutput(w io.Writer) {
 	}
 }
 
-func (l *logger) Write(p []byte) (n int, err error) {
+func (l *logger) Write(p []byte) (int, error) {
 	l.RLock()
 	defer l.RUnlock()
 
-	for _, w := range l.writers {
-		n, err = w.Write(p)
-		if err != nil || n != len(p) {
-			err = io.ErrShortWrite
-			continue
-		}
-	}
-
-	return
+	// The logger ends with newlines but for telnet we need carriage
+	// returns too.
+	return io.MultiWriter(l.writers...).Write(bytes.Replace(p, []byte{lf}, []byte{cr, lf}, -1))
 }

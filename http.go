@@ -169,16 +169,16 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 
-	inEvents := c.eb.Subscribe(r.RemoteAddr)
-	defer c.eb.Unsubscribe(inEvents)
+	events := c.eb.Subscribe(r.RemoteAddr)
+	defer c.eb.Unsubscribe(events)
 
 	for {
 		select {
 		case <-w.(http.CloseNotifier).CloseNotify():
 			// Client closed the connection
 			return
-		case e := <-inEvents:
-			fmt.Fprintf(w, "event: %s\n", e.Event)
+		case e := <-events:
+			fmt.Fprintf(w, "event: %s\n", e.Name)
 			r, _ := json.Marshal(e.Data)
 			fmt.Fprintf(w, "data: %s\n\n", r)
 			w.(http.Flusher).Flush()

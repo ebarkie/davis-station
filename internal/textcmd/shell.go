@@ -21,7 +21,7 @@ var (
 // cmd is a command definition.
 type cmd struct {
 	r *regexp.Regexp
-	f func(Ctx) error
+	f func(Env) error
 }
 
 // Shell is a text command shell for which commands can be
@@ -34,7 +34,7 @@ type Shell struct {
 func (sh Shell) Exec(conn net.Conn, s string) error {
 	for _, cmd := range sh.cmds {
 		if matches := cmd.r.FindStringSubmatch(s); matches != nil {
-			return cmd.f(Ctx{conn, matches})
+			return cmd.f(Env{Conn: conn, matches: matches})
 		}
 	}
 
@@ -52,8 +52,8 @@ func (sh Shell) Exec(conn net.Conn, s string) error {
 // mycommand ([[:digit:]]*)
 //
 // The above represents a command with a required integer argument
-// which will be accessible as Ctx.Arg(1).
-func (sh *Shell) Register(r string, f func(Ctx) error) {
+// which will be accessible as Env.Arg(1).
+func (sh *Shell) Register(r string, f func(Env) error) {
 	sh.cmds = append(sh.cmds, cmd{
 		r: regexp.MustCompile("(?i)^" + r + "$"),
 		f: f})

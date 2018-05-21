@@ -9,15 +9,25 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"strings"
 	"text/template"
 	"time"
 
 	"github.com/ebarkie/davis-station/internal/textcmd"
+	"github.com/ebarkie/telnet"
+	"github.com/ebarkie/telnet/option"
 )
 
-// Telnet server for accessing weather station data old-school style.
-// Or it's useful for debugging.
+// Telnet server for accessing weather station data old-school style
+// or debugging.
+
+const (
+	nul = 0x00 // Null
+	bs  = 0x08 // Backspace
+	lf  = 0x0a // Line Feed
+	cr  = 0x0d // Carriage return
+	sp  = 0x20 // Space
+	del = 0x7f // Delete
+)
 
 // telnetCtx is the telnet context.  It includes the serverCtx,
 // parsed telnet templates, and the command rules.
@@ -27,12 +37,92 @@ type telnetCtx struct {
 	sh textcmd.Shell
 }
 
-// cmdPrompt is the "main menu" for the telnet Conn.
-func (t telnetCtx) cmdPrompt(conn net.Conn) {
+// telnetServer starts the telnet server.
+func telnetServer(sc serverCtx, cfg config) {
+	// Inherit generic server context so we have access to things like
+	// archive records and loop packets.
+	t := telnetCtx{serverCtx: sc}
+
+	// Parse templates
+	err := t.parseTemplates(cfg.res + "/tmpl/telnet/*.tmpl")
+	if err != nil {
+		Error.Fatalf("Telnet template parse error: %s", err.Error())
+	}
+
+	// Register shell commands
+	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
+	t.sh.Register("(?:\\?|help)", t.help)
+	t.sh.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
+	t.sh.Register("(?:cond|loop)", t.loop)
+	t.sh.Register("(?:date|time)", t.time)
+	t.sh.Register("health", t.health)
+	t.sh.Register("(?:lamps)[[:space:]]+(off|on)", t.lamps)
+	t.sh.Register("uname", t.uname)
+	t.sh.Register("up(?:time)*", t.uptime)
+	t.sh.Register("ver(?:s)*", t.ver)
+	t.sh.Register("watch[[:space:]]+log[[:space:]]+(debug|trace)", t.log)
+	t.sh.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
+	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
+
+	// Listen and accept new connections
+	addr := net.JoinHostPort(cfg.addr, "8023")
+	Info.Printf("Telnet server started on %s", addr)
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		Error.Fatalf("Telnet server error: %s", err.Error())
+	}
+
+	for {
+		conn, _ := l.Accept()
+		go t.start(conn)
+	}
+}
+
+// telnetConn is a Conn consisting of a TCPConn and a telnet ReadWriter.
+type telnetConn struct {
+	io.ReadWriter
+	net.Conn
+}
+
+func (c telnetConn) Read(b []byte) (n int, err error) { return c.ReadWriter.Read(b) }
+func (c telnetConn) Write(b []byte) (int, error)      { return c.ReadWriter.Write(b) }
+
+// start starts a new telnet session.  It sets up the telnet ReadWriter,
+// negotiates character mode, and then passes control to the prompt for the
+// duration of the connection.
+func (t telnetCtx) start(conn net.Conn) {
 	defer conn.Close()
 	defer Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
-
 	Debug.Printf("Telnet connection from %s opened", conn.RemoteAddr())
+
+	// Create telnet Conn and negotiate character mode.
+	echo := &option.Echo{}
+	sga := &option.SGA{}
+	tn := telnet.NewReadWriter(conn, echo, sga)
+
+	tn.AskUs(sga, true)
+	tn.AskUs(echo, true)
+
+	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
+	var err error
+	for err == nil {
+		_, err = tn.Read([]byte{})
+		if echo.Us {
+			break
+		}
+	}
+	conn.SetReadDeadline(time.Time{})
+
+	if !echo.Us {
+		tn.Write([]byte("Protocol negotiation failed, closing connection.\r\n"))
+		return
+	}
+
+	t.prompt(telnetConn{ReadWriter: tn, Conn: conn})
+}
+
+// prompt is the shell or "main menu" prompt for the telnet Conn.
+func (t telnetCtx) prompt(conn net.Conn) {
 	// Welcome banner
 	t.sh.Exec(conn, "uname")
 
@@ -156,19 +246,52 @@ func (t *telnetCtx) parseTemplates(p string) (err error) {
 	return
 }
 
-// readLine reads a line of data from the Conn and returns it
-// space trimmed.
+// readOne reads one byte.
 //
-// This telnet server does not run in RFC 1184 linemode so
-// data is not received until the remote sends a CR.
-func (telnetCtx) readLine(r io.Reader) (s string, err error) {
-	br := bufio.NewReader(r)
-	s, err = br.ReadString('\n')
-	if err == nil {
-		s = strings.TrimSpace(s)
+// If the byte read is a carriage return then the enter key was pressed
+// so the newline that follows will be read and discarded.
+func (t telnetCtx) readOne(r io.Reader) (byte, error) {
+	buf := make([]byte, 1)
+	_, err := r.Read(buf)
+	if buf[0] == cr {
+		t.readOne(r)
 	}
+	return buf[0], err
+}
 
-	return
+// readLine reads a line of data and returns it as a string.  It
+// handles character mode operations including echoing and backspacing.
+func (telnetCtx) readLine(rw io.ReadWriter) (s string, err error) {
+	buf := make([]byte, 1024)
+	var n, nt int
+	for {
+		n, err = rw.Read(buf)
+		if err != nil {
+			return
+		}
+
+		for i := 0; i < n; i++ {
+			switch buf[i] {
+			case nul, lf:
+				// A null or newline indicates end of line
+				rw.Write([]byte("\r\n"))
+				return
+			case cr:
+				// Ignore carriage returns
+			case bs, del:
+				// Backspace (^H or ^?)
+				if nt > 0 {
+					rw.Write([]byte{bs, sp, bs})
+					s = s[:len(s)-1]
+					nt--
+				}
+			default:
+				rw.Write([]byte{buf[i]}) // Echo
+				s += string(buf[i])
+				nt++
+			}
+		}
+	}
 }
 
 // template executes the named template with the specified data
@@ -181,45 +304,4 @@ func (t telnetCtx) template(w io.Writer, name string, data interface{}) {
 		fmt.Fprintf(bw, "Content not available.\r\n")
 	}
 	bw.Flush()
-}
-
-// telnetServer starts the telnet server.
-func telnetServer(sc serverCtx, cfg config) {
-	// Inherit generic server context so we have access to things like
-	// archive records and loop packets.
-	t := telnetCtx{serverCtx: sc}
-
-	// Parse templates
-	err := t.parseTemplates(cfg.res + "/tmpl/telnet/*.tmpl")
-	if err != nil {
-		Error.Fatalf("Telnet template parse error: %s", err.Error())
-	}
-
-	// Register shell commands
-	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
-	t.sh.Register("(?:\\?|help)", t.help)
-	t.sh.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
-	t.sh.Register("(?:cond|loop)", t.loop)
-	t.sh.Register("(?:date|time)", t.time)
-	t.sh.Register("health", t.health)
-	t.sh.Register("(?:lamps)[[:space:]]+(off|on)", t.lamps)
-	t.sh.Register("uname", t.uname)
-	t.sh.Register("up(?:time)*", t.uptime)
-	t.sh.Register("ver(?:s)*", t.ver)
-	t.sh.Register("watch[[:space:]]+log[[:space:]]+(debug|trace)", t.log)
-	t.sh.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
-	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
-
-	// Listen and accept new connections
-	addr := net.JoinHostPort(cfg.addr, "8023")
-	Info.Printf("Telnet server started on %s", addr)
-	l, err := net.Listen("tcp", addr)
-	if err != nil {
-		Error.Fatalf("Telnet server error: %s", err.Error())
-	}
-
-	for {
-		conn, _ := l.Accept()
-		go t.cmdPrompt(conn)
-	}
 }
