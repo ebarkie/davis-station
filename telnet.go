@@ -224,19 +224,20 @@ func (telnetCtx) degToDir(deg int) string {
 // for later execution.
 func (t *telnetCtx) parseTemplates(p string) (err error) {
 	fmap := template.FuncMap{
-		"degToDir":   t.degToDir,
-		"colorScale": t.colorScale,
-		"highlight":  t.highlight,
-		"noColor": func() string {
-			return t.ansiEsc("0")
-		},
 		"archiveTime": func(t time.Time) string {
 			return t.Format("01/02 15:04")
 		},
+		"colorScale": t.colorScale,
+		"degToDir":   t.degToDir,
+		"highlight":  t.highlight,
+		"int":        func(i int) int { return i },
 		"longTime": func(t time.Time) string {
 			return t.Format("Monday, January 2 2006 at 15:04:05")
 		},
 		"metar": metar,
+		"noColor": func() string {
+			return t.ansiEsc("0")
+		},
 		"sunTime": func(t time.Time) string {
 			return t.Format("15:04")
 		},
