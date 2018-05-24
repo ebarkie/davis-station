@@ -26,9 +26,15 @@ Weather conditions on {{printf "%-43s Seq: %8d" (.Timestamp | longTime) .Seq}}
 {{- printf " at %s%-3d%smph" (colorScale .Wind.Cur.Speed -1 -1 8 19) .Wind.Cur.Speed noColor}}
 {{printf "    Gusting: %-3d° %-3s" .Wind.Gust.Last10MinDir (.Wind.Gust.Last10MinDir | degToDir)}}
 {{- printf " at %s%-3.0f%smph" (colorScale .Wind.Gust.Last10MinSpeed -1 -1 19 32) .Wind.Gust.Last10MinSpeed noColor}}
-{{if (index .SoilTemp 0) }}
-{{index .SoilTemp 0 | int | printf "  Soil Temp: %-3d°F"}}
+
+{{if (index .SoilTemp 0) -}}
+{{with $t := (int (index .SoilTemp 0))}}{{printf "  Soil Temp: %s%-3d%s°F" (colorScale $t 30 40 60 80) $t noColor}}{{end}}
+{{- end}}
+{{- if (index .SoilMoist 0)}}
 {{- index .SoilMoist 0 | int | printf "   Soil Moisture: %-3dcb"}}
-{{end}}
+{{- end}}
+{{- if or (index .SoilTemp 0) (index .SoilMoist 0)}}
+
+{{end -}}
 {{metar .}}
 {{end}}
