@@ -45,6 +45,36 @@
 			"path": "golang.org/x/sys/unix",
 			"revision": "fb4cac33e3196ff7f507ab9b2d2a44b0142f5b5a",
 			"revisionTime": "2017-06-14T06:48:48Z"
+		},
+		{
+			"checksumSHA1": "Mr4ur60bgQJnQFfJY0dGtwWwMPE=",
+			"path": "golang.org/x/text/encoding",
+			"revision": "9e2f80a6ba7ed4ba13e0cd4b1f094bf916875735",
+			"revisionTime": "2017-06-09T15:53:19Z"
+		},
+		{
+			"checksumSHA1": "HgcUFTOQF5jOYtTIj5obR3GVN9A=",
+			"path": "golang.org/x/text/encoding/charmap",
+			"revision": "9e2f80a6ba7ed4ba13e0cd4b1f094bf916875735",
+			"revisionTime": "2017-06-09T15:53:19Z"
+		},
+		{
+			"checksumSHA1": "zeHyHebIZl1tGuwGllIhjfci+wI=",
+			"path": "golang.org/x/text/encoding/internal",
+			"revision": "9e2f80a6ba7ed4ba13e0cd4b1f094bf916875735",
+			"revisionTime": "2017-06-09T15:53:19Z"
+		},
+		{
+			"checksumSHA1": "9cg4nSGfKTIWKb6bWV7U4lnuFKA=",
+			"path": "golang.org/x/text/encoding/internal/identifier",
+			"revision": "9e2f80a6ba7ed4ba13e0cd4b1f094bf916875735",
+			"revisionTime": "2017-06-09T15:53:19Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": "9e2f80a6ba7ed4ba13e0cd4b1f094bf916875735",
+			"revisionTime": "2017-06-09T15:53:19Z"
 		}
 	],
 	"rootPath": "github.com/ebarkie/davis-station"

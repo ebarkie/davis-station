@@ -15,6 +15,9 @@ import (
 	"github.com/ebarkie/davis-station/internal/textcmd"
 	"github.com/ebarkie/telnet"
 	"github.com/ebarkie/telnet/option"
+
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/transform"
 )
 
 // Telnet server for accessing weather station data old-school style
@@ -78,47 +81,68 @@ func telnetServer(sc serverCtx, cfg config) {
 	}
 }
 
-// telnetConn is a Conn consisting of a TCPConn and a telnet ReadWriter.
+// telnetConn is a Conn consisting of a TCPConn and a ReaderWriter.
+//
+// The ReaderWriter is a telnet ReadWriter which dispatches to the TCPConn.
+// Depending on the terminal type it may also be wrapped with a character
+// transformer.
 type telnetConn struct {
-	io.ReadWriter
+	io.Reader
+	io.Writer
 	net.Conn
 }
 
-func (c telnetConn) Read(b []byte) (n int, err error) { return c.ReadWriter.Read(b) }
-func (c telnetConn) Write(b []byte) (int, error)      { return c.ReadWriter.Write(b) }
+func (c telnetConn) Read(b []byte) (n int, err error) { return c.Reader.Read(b) }
+func (c telnetConn) Write(b []byte) (int, error)      { return c.Writer.Write(b) }
 
-// start starts a new telnet session.  It sets up the telnet ReadWriter,
-// negotiates character mode, and then passes control to the prompt for the
-// duration of the connection.
+// start sets up a new telnet session and a character transformer, if
+// necessary.  It then passes control to the prompt for the duration of
+// the connection.
 func (t telnetCtx) start(conn net.Conn) {
 	defer conn.Close()
-	defer Debug.Printf("Telnet connection from %s closed", conn.RemoteAddr())
-	Debug.Printf("Telnet connection from %s opened", conn.RemoteAddr())
+	defer Debug.Printf("Telnet remote %s connection closed", conn.RemoteAddr())
+	Debug.Printf("Telnet remote %s connection opened", conn.RemoteAddr())
 
-	// Create telnet Conn and negotiate character mode.
+	// Create telnet ReadWriter and negotiate options.
 	echo := &option.Echo{}
 	sga := &option.SGA{}
-	tn := telnet.NewReadWriter(conn, echo, sga)
+	term := &option.Term{}
+	tn := telnet.NewReadWriter(conn, echo, sga, term)
 
 	tn.AskUs(sga, true)
 	tn.AskUs(echo, true)
+	tn.AskHim(term, true)
 
 	conn.SetReadDeadline(time.Now().Add(2 * time.Second))
 	var err error
 	for err == nil {
 		_, err = tn.Read([]byte{})
-		if echo.Us {
+		if echo.Us && term.Him != "" {
 			break
 		}
 	}
 	conn.SetReadDeadline(time.Time{})
 
+	// Close connection if character mode negotiation was unsuccessful.
 	if !echo.Us {
 		tn.Write([]byte("Protocol negotiation failed, closing connection.\r\n"))
 		return
 	}
 
-	t.prompt(telnetConn{ReadWriter: tn, Conn: conn})
+	// If a terminal type was received and it doesn't use UTF-8 then wrap
+	// the telnet ReadWriter with an appropriate character map transformer.
+	var r io.Reader
+	var w io.Writer
+	switch term.Him {
+	case "ANSI":
+		Debug.Printf("Telnet remote %s encoding as code page 437", conn.RemoteAddr())
+		r = transform.NewReader(tn, charmap.CodePage437.NewDecoder())
+		w = transform.NewWriter(tn, charmap.CodePage437.NewEncoder())
+	default:
+		r, w = tn, tn
+	}
+
+	t.prompt(telnetConn{Reader: r, Writer: w, Conn: conn})
 }
 
 // prompt is the shell or "main menu" prompt for the telnet Conn.
@@ -135,14 +159,14 @@ func (t telnetCtx) prompt(conn net.Conn) {
 			// Client closed the connection
 			return
 		}
-		Debug.Printf("Telnet command from %s: %s", conn.RemoteAddr(), s)
+		Debug.Printf("Telnet remote %s command: %s", conn.RemoteAddr(), s)
 
 		err = t.sh.Exec(conn, s)
 		if err == textcmd.ErrCmdQuit {
 			return
 		}
 		if err != nil {
-			Warn.Printf("Telnet command error %s: %s: %s", conn.RemoteAddr(), s, err.Error())
+			Warn.Printf("Telnet remote %s command error: %s: %s", conn.RemoteAddr(), s, err.Error())
 			t.template(conn, "error",
 				struct {
 					Cmd string
