@@ -85,27 +85,31 @@ func (t telnetCtx) log(e textcmd.Env) error {
 }
 
 func (t telnetCtx) loop(e textcmd.Env) error {
-	watch := false
+	var watch bool
 	if a := e.Arg(1); a == "watch" {
 		watch = true
+	}
+
+	printLoop := func(l loop) {
+		t.template(e, "loop", l)
+		if watch {
+			fmt.Fprintf(e, "\r\nWatching conditions.  Press any key to end.")
+		}
 	}
 
 	numLoops, lastLoop := t.lb.last()
 	if numLoops < loopsMin {
 		return errLoopsMin
 	}
-
-	t.template(e, "loop", lastLoop)
+	printLoop(lastLoop)
 
 	if watch {
 		events := t.eb.Subscribe(e.RemoteAddr().String())
 		defer t.eb.Unsubscribe(events)
-
 		go func() {
 			for ev := range events {
-				if ev.Name == "loop" {
-					t.template(e, "loop", ev.Data)
-					fmt.Fprintf(e, "\r\nWatching conditions.  Press any key to end.")
+				if lastLoop, ok := ev.Data.(loop); ok {
+					printLoop(lastLoop)
 				}
 			}
 		}()
