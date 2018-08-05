@@ -9,4 +9,7 @@ DB="/var/lib/davis-station/weather.db"
 # Weather station device
 DEV="/dev/ttyUSB0"
 
+# Resources path
+RES="/usr/share/davis-station"
+
 EXTRA_OPTS=""
