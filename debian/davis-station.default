@@ -1,7 +1,7 @@
 # Default settings for davis-station.
 
 # Server bind address
-ADDR="[::]"
+ADDR="::"
 
 # Bolt database file
 DB="/var/lib/davis-station/weather.db"

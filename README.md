@@ -40,7 +40,7 @@ $ debuild -uc -us -b
 ```
 Usage of ./davis-station:
   -addr string
-    	server bind address (default "[::]")
+    	server bind address
   -db string
     	bolt database file (default "weather.db")
   -debug
