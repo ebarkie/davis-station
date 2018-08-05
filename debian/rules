@@ -7,7 +7,8 @@ export DH_GOPKG                := github.com/ebarkie/davis-station
 export DH_GOLANG_GO_GENERATE   := 1
 export DH_GOLANG_INSTALL_EXTRA := version.sh
 
-GOGETS = github.com/ebarkie/weatherlink
+GOGETS = github.com/ebarkie/telnet \
+	 github.com/ebarkie/weatherlink
 
 %:
 	dh $@ --buildsystem=golang --with=golang,systemd --builddirectory=_build
