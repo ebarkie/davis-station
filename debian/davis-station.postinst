@@ -20,8 +20,8 @@ set -e
 
 case "$1" in
     configure)
-	addgroup --system --quiet wx
-	adduser --system --quiet --home /var/lib/davis-station --ingroup wx --no-create-home wx
+	adduser --quiet --system --group --home /var/lib/davis-station --no-create-home wx
+	adduser --quiet wx dialout
         chown -R wx:wx /var/lib/davis-station
     ;;
 
