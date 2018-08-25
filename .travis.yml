@@ -5,3 +5,5 @@ env:
   - GO111MODULE=on
 before_install:
   - go generate
+install:
+  - go mod download
