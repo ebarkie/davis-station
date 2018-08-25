@@ -22,7 +22,6 @@ Features include:
 ### Binary from source
 
 ```bash
-$ go get
 $ go generate
 $ go build
 ```
