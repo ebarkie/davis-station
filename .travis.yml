@@ -3,7 +3,6 @@ go:
   - 1.11.x
 env:
   - GO111MODULE=on
-before_install:
-  - go generate
 install:
   - go mod download
+  - go generate
