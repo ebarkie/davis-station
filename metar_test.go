@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func ExampleMetar() {
+func Example_metar() {
 	l := loop{Timestamp: time.Date(2006, time.January, 2, 15, 4, 5, 0, time.UTC)}
 	fmt.Println(metar(l))
 
