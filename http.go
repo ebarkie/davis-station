@@ -19,7 +19,6 @@ import (
 type httpCtx serverCtx
 
 type httpLogWrapper struct {
-	http.CloseNotifier
 	http.Flusher
 	http.ResponseWriter
 	status int
@@ -37,7 +36,6 @@ func (l *httpLogWrapper) WriteHeader(status int) {
 func (httpCtx) logHandler(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		record := &httpLogWrapper{
-			CloseNotifier:  w.(http.CloseNotifier),
 			Flusher:        w.(http.Flusher),
 			ResponseWriter: w,
 			status:         http.StatusOK,
@@ -174,7 +172,7 @@ func (c httpCtx) events(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		select {
-		case <-w.(http.CloseNotifier).CloseNotify():
+		case <-r.Context().Done():
 			// Client closed the connection
 			return
 		case e := <-events:
