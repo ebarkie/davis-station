@@ -1,6 +1,11 @@
 .DS_Store
 ._*
 *.swp
-davis-station
-version.go
+
+/davis-station
+/version.go
 weather.db
+
+/_build
+/debian/.debhelper
+/debian/davis-station

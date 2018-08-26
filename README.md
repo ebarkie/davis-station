@@ -29,7 +29,7 @@ $ go build
 ### Debian/Ubuntu packages
 
 ```bash
-$ debuild -uc -us -b
+$ dpkg-buildpackage -uc -us -b
 ```
 
 ## Usage

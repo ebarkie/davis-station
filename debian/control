@@ -5,7 +5,7 @@ Maintainer: Eric Barkie <ebarkie@users.noreply.github.com>
 Build-Depends: debhelper (>= 10),
                dh-golang,
                git,
-               golang-any
+               golang-any (>= 2:1.11~) | golang-go (>= 2:1.11~)
 Standards-Version: 4.0.0
 Homepage: https://github.com/ebarkie/davis-station
 XS-Go-Import-Path: github.com/ebarkie/davis-station
