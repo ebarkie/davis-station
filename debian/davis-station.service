@@ -7,6 +7,7 @@ User=wx
 Group=wx
 EnvironmentFile=-/etc/default/davis-station
 ExecStart=/usr/bin/davis-station -addr $ADDR -db $DB -dev $DEV -res $RES $EXTRA_OPTS
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target
