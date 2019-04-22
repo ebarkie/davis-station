@@ -21,16 +21,19 @@ Features include:
 
 ### Binary from source
 
-```bash
+```sh
 $ go generate
 $ go build
 ```
 
 ### Debian/Ubuntu packages
 
-```bash
+```sh
 $ dpkg-buildpackage -uc -us -b
 ```
+
+To build packages for other architectures add the `--host-arch` option.  For
+Raspberry Pi use `--host-arch armhf`.
 
 ## Usage
 
@@ -64,6 +67,6 @@ Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercon
 
 ## License
 
-Copyright (c) 2016-2018 Eric Barkie. All rights reserved.  
+Copyright (c) 2016-2019 Eric Barkie. All rights reserved.  
 Use of this source code is governed by the MIT license
 that can be found in the [LICENSE](LICENSE) file.
