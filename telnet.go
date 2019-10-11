@@ -12,9 +12,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/ebarkie/davis-station/internal/textcmd"
-	"github.com/ebarkie/telnet"
-	"github.com/ebarkie/telnet/option"
+	"gitlab.com/ebarkie/davis-station/internal/textcmd"
+	"gitlab.com/ebarkie/telnet"
+	"gitlab.com/ebarkie/telnet/option"
 
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"

@@ -7,9 +7,9 @@ package main
 import (
 	"time"
 
-	"github.com/ebarkie/davis-station/internal/events"
-	"github.com/ebarkie/weatherlink"
-	"github.com/ebarkie/weatherlink/data"
+	"gitlab.com/ebarkie/davis-station/internal/events"
+	"gitlab.com/ebarkie/weatherlink"
+	"gitlab.com/ebarkie/weatherlink/data"
 )
 
 // loop is a weatherlink.Loop with a sequence and timestamp

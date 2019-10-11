@@ -1,14 +1,14 @@
 Source: davis-station
 Section: science
 Priority: extra
-Maintainer: Eric Barkie <ebarkie@users.noreply.github.com>
+Maintainer: Eric Barkie <2314646-ebarkie@users.noreply.gitlab.com>
 Build-Depends: debhelper (>= 10),
                dh-golang,
                git,
                golang-any (>= 2:1.11~) | golang-go (>= 2:1.11~)
 Standards-Version: 4.0.0
-Homepage: https://github.com/ebarkie/davis-station
-XS-Go-Import-Path: github.com/ebarkie/davis-station
+Homepage: https://gitlab.com/ebarkie/davis-station
+XS-Go-Import-Path: gitlab.com/ebarkie/davis-station
 
 Package: davis-station
 Architecture: any

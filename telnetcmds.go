@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/ebarkie/davis-station/internal/textcmd"
-	"github.com/ebarkie/weatherlink"
-	"github.com/ebarkie/weatherlink/data"
+	"gitlab.com/ebarkie/davis-station/internal/textcmd"
+	"gitlab.com/ebarkie/weatherlink"
+	"gitlab.com/ebarkie/weatherlink/data"
 )
 
 func (t telnetCtx) archive(e textcmd.Env) (err error) {

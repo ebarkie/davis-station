@@ -1,9 +1,9 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: davis-station
-Source: <https://github.com/ebarkie/davis-station>
+Source: <https://gitlab.com/ebarkie/davis-station>
 
 Files: *
-Copyright: 2016-2018 Eric Barkie <ebarkie@users.noreply.github.com>
+Copyright: 2016-2019 Eric Barkie <2314646-ebarkie@users.noreply.gitlab.com>
 License: MIT
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal

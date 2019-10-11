@@ -1,8 +1,5 @@
 # Davis Instruments weather station
 
-[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
-[![Build Status](https://travis-ci.org/ebarkie/davis-station.svg?branch=master)](https://travis-ci.org/ebarkie/davis-station)
-
 This uses the weatherlink package to create a modern Personal
 Weather Station.
 
@@ -59,7 +56,7 @@ $ ./davis-station -dev /dev/ttyUSB0
 
 ### HTTP
 
-Refer to the [swagger](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/ebarkie/davis-station/master/doc/swagger.json) specification for HTTP endpoint information.
+Refer to the [swagger](http://petstore.swagger.io/?url=https://gitlab.com/ebarkie/davis-station/raw/master/doc/swagger.json) specification for HTTP endpoint information.
 
 ### Telnet
 

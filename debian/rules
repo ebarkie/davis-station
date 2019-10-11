@@ -13,7 +13,7 @@ else ifeq ($(DEB_HOST_ARCH), armhf)
 	GOARCH := arm
 endif
 
-export DH_GOPKG                := github.com/ebarkie/$(PACKAGE)
+export DH_GOPKG                := gitlab.com/ebarkie/$(PACKAGE)
 export DH_GOLANG_GO_GENERATE   := 1
 export DH_GOLANG_INSTALL_EXTRA := version.sh
 
