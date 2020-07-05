@@ -1,3 +1,5 @@
+![Push](https://github.com/ebarkie/davis-station/workflows/Push/badge.svg)
+
 # Davis Instruments weather station
 
 This uses the weatherlink package to create a modern Personal
