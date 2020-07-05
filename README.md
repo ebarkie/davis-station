@@ -56,7 +56,7 @@ $ ./davis-station -dev /dev/ttyUSB0
 
 ### HTTP
 
-Refer to the [swagger](http://petstore.swagger.io/?url=https://gitlab.com/ebarkie/davis-station/raw/master/doc/swagger.json) specification for HTTP endpoint information.
+Refer to the [swagger](http://petstore.swagger.io/?url=https://github.com/ebarkie/davis-station/raw/master/doc/swagger.json) specification for HTTP endpoint information.
 
 ### Telnet
 
@@ -64,6 +64,6 @@ Refer to the [swagger](http://petstore.swagger.io/?url=https://gitlab.com/ebarki
 
 ## License
 
-Copyright (c) 2016-2019 Eric Barkie. All rights reserved.  
+Copyright (c) 2016-2020 Eric Barkie. All rights reserved.  
 Use of this source code is governed by the MIT license
 that can be found in the [LICENSE](LICENSE) file.

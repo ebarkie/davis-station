@@ -8,9 +8,9 @@ import (
 	"errors"
 	"time"
 
-	"gitlab.com/ebarkie/davis-station/internal/archive"
-	"gitlab.com/ebarkie/davis-station/internal/events"
-	"gitlab.com/ebarkie/weatherlink"
+	"github.com/ebarkie/davis-station/internal/archive"
+	"github.com/ebarkie/davis-station/internal/events"
+	"github.com/ebarkie/weatherlink"
 )
 
 const (

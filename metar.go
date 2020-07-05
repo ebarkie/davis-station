@@ -9,8 +9,8 @@ import (
 	"math"
 	"time"
 
-	"gitlab.com/ebarkie/weatherlink/packet"
-	"gitlab.com/ebarkie/weatherlink/units"
+	"github.com/ebarkie/weatherlink/packet"
+	"github.com/ebarkie/weatherlink/units"
 )
 
 // metar generates a report string for a given Loop struct.

@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"gitlab.com/ebarkie/weatherlink/data"
+	"github.com/ebarkie/weatherlink/data"
 
 	"github.com/boltdb/bolt"
 )
