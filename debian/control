@@ -1,7 +1,7 @@
 Source: davis-station
 Section: science
 Priority: extra
-Maintainer: Eric Barkie <2314646-ebarkie@users.noreply.gitlab.com>
+Maintainer: Eric Barkie <ebarkie@users.noreply.github.com>
 Build-Depends: debhelper (>= 10),
                dh-golang,
                git,

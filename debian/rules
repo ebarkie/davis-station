@@ -23,10 +23,6 @@ export DH_GOLANG_INSTALL_EXTRA := version.sh
 override_dh_auto_build:
 	chmod u+x $(BUILD_DIR)/src/$(DH_GOPKG)/version.sh
 	GOARCH=$(GOARCH) dh_auto_build
-	if [ -d $(BUILD_DIR)/bin/linux_$(GOARCH) ]; then \
-		mv $(BUILD_DIR)/bin/linux_$(GOARCH)/* $(BUILD_DIR)/bin; \
-		rmdir $(BUILD_DIR)/bin/linux_$(GOARCH); \
-	fi
 
 override_dh_auto_clean:
 	[ -d $(BUILD_DIR)/pkg ] && chmod -R u+w $(BUILD_DIR)/pkg || true
@@ -35,3 +31,5 @@ override_dh_auto_clean:
 
 override_dh_auto_install:
 	dh_auto_install -- --no-source
+
+override_dh_shlibdeps:

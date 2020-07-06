@@ -1,5 +1,5 @@
-davis-station (0.1-1) unstable; urgency=low
+davis-station (0.0.1) unstable; urgency=low
 
   * Initial packaging
 
- -- Eric Barkie <2314646-ebarkie@users.noreply.gitlab.com>  Sat, 09 Sep 2017 15:09:38 -0400
+ -- Eric Barkie <ebarkie@users.noreply.github.com>  Sat, 09 Sep 2017 15:09:38 -0400
