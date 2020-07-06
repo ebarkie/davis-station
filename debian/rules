@@ -32,4 +32,6 @@ override_dh_auto_clean:
 override_dh_auto_install:
 	dh_auto_install -- --no-source
 
+override_dh_auto_test:
+
 override_dh_shlibdeps:
