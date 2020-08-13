@@ -21,8 +21,8 @@ const (
 
 // Errors.
 var (
-	errLoopsAge = errors.New("Samples are too old")
-	errLoopsMin = errors.New("Not enough samples yet")
+	errLoopsAge = errors.New("samples are too old")
+	errLoopsMin = errors.New("not enough samples yet")
 )
 
 // serverCtx contains a shared context that is made available to

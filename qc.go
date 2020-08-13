@@ -17,7 +17,7 @@ type qualityControl struct {
 // assertRange implements simple min/max range checks.
 func (qc *qualityControl) assertRange(f string, v float64, min float64, max float64) {
 	if v < min || v > max {
-		qc.errs = append(qc.errs, fmt.Errorf("Range check, %f < (%s) < %f, failed for value: %f", min, f, max, v))
+		qc.errs = append(qc.errs, fmt.Errorf("range check, %f < (%s) < %f, failed for value: %f", min, f, max, v))
 	}
 }
 

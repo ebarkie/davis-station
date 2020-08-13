@@ -43,9 +43,9 @@ func stationEvents(sc serverCtx) error {
 	// Receive events forever
 	var seq int64
 	for e := range ec {
-		switch e.(type) {
+		switch e := e.(type) {
 		case data.Archive:
-			a := e.(data.Archive)
+			a := e
 
 			// Add record to archive database
 			err := sc.ar.Add(a)
@@ -60,7 +60,7 @@ func stationEvents(sc serverCtx) error {
 			l := loop{}
 			l.Timestamp = time.Now()
 			l.Seq = seq
-			l.Loop = e.(data.Loop)
+			l.Loop = e
 
 			// Quality control validity check
 			qc := validityCheck(l)

@@ -12,9 +12,9 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/ebarkie/davis-station/internal/textcmd"
 	"github.com/ebarkie/telnet"
 	"github.com/ebarkie/telnet/option"
+	"github.com/ebarkie/textcmd"
 
 	"golang.org/x/text/encoding/charmap"
 	"golang.org/x/text/transform"
@@ -53,19 +53,19 @@ func telnetServer(sc serverCtx, cfg config) {
 	}
 
 	// Register shell commands
-	t.sh.Register("(?:\x04|exit|logoff|logout|quit)", t.quit)
-	t.sh.Register("(?:\\?|help)", t.help)
-	t.sh.Register("(?:archive|trend)(?:[[:space:]]+([[:digit:]]+))*", t.archive)
-	t.sh.Register("(?:cond|loop)", t.loop)
-	t.sh.Register("(?:date|time)", t.time)
-	t.sh.Register("health", t.health)
-	t.sh.Register("(?:lamps)[[:space:]]+(off|on)", t.lamps)
-	t.sh.Register("uname", t.uname)
-	t.sh.Register("up(?:time)*", t.uptime)
-	t.sh.Register("ver(?:s)*", t.ver)
-	t.sh.Register("watch[[:space:]]+log[[:space:]]+(debug|trace)", t.log)
-	t.sh.Register("(watch)[[:space:]]+(?:cond|loop)", t.loop)
-	t.sh.Register("who[[:space:]]*am[[:space:]]*i", t.whoami)
+	t.sh.Register(t.quit, "\x04", "exit", "logout", "quit")
+	t.sh.Register(t.help, "?", "help")
+	t.sh.Register(t.archive, "archive", "trend")
+	t.sh.Register(t.loop, "conditions", "loop")
+	t.sh.Register(t.time, "date", "time")
+	t.sh.Register(t.health, "health")
+	t.sh.Register(t.lamps, "lamps off", "lamps on")
+	t.sh.Register(t.uname, "uname")
+	t.sh.Register(t.uptime, "uptime")
+	t.sh.Register(t.ver, "version")
+	t.sh.Register(t.log, "watch log debug", "watch log trace")
+	t.sh.Register(t.loop, "watch conditions", "watch loops")
+	t.sh.Register(t.whoami, "whoami")
 
 	// Listen and accept new connections
 	addr := net.JoinHostPort(cfg.addr, "8023")
@@ -189,11 +189,11 @@ func (telnetCtx) ansiEsc(s string) string {
 // Blue   Cyan     <default> Yellow   Red
 func (t telnetCtx) colorScale(i interface{}, cold, cool, warm, hot float64) string {
 	var v float64
-	switch i.(type) {
+	switch i := i.(type) {
 	case int:
-		v = float64(i.(int))
+		v = float64(i)
 	case float64:
-		v = i.(float64)
+		v = i
 	default:
 		return ""
 	}

@@ -8,9 +8,10 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/ebarkie/davis-station/internal/textcmd"
+	"github.com/ebarkie/textcmd"
 	"github.com/ebarkie/weatherlink"
 	"github.com/ebarkie/weatherlink/data"
 )
@@ -51,8 +52,9 @@ func (t telnetCtx) help(e textcmd.Env) error {
 }
 
 func (t telnetCtx) lamps(e textcmd.Env) error {
-	fmt.Fprintf(e, "Setting lamps %s..", e.Arg(1))
-	if e.Arg(1) == "on" {
+	state := strings.Split(e.Arg(0), " ")[1]
+	fmt.Fprintf(e, "Setting lamps %s..", state)
+	if state == "on" {
 		t.wl.Q <- weatherlink.LampsOn
 	} else {
 		t.wl.Q <- weatherlink.LampsOff
@@ -63,9 +65,10 @@ func (t telnetCtx) lamps(e textcmd.Env) error {
 }
 
 func (t telnetCtx) log(e textcmd.Env) error {
-	fmt.Fprintf(e, "Watching log at %s level.  Press any key to end.\r\n\r\n", e.Arg(1))
+	level := strings.Split(e.Arg(0), " ")[2]
+	fmt.Fprintf(e, "Watching log at %s level.  Press any key to end.\r\n\r\n", level)
 	debugLoggers := []*logger{Error, Warn, Info, Debug}
-	if e.Arg(1) == "trace" {
+	if level == "trace" {
 		debugLoggers = append(debugLoggers, Trace)
 	}
 
@@ -86,7 +89,7 @@ func (t telnetCtx) log(e textcmd.Env) error {
 
 func (t telnetCtx) loop(e textcmd.Env) error {
 	var watch bool
-	if a := e.Arg(1); a == "watch" {
+	if strings.HasPrefix(e.Arg(0), "watch") {
 		watch = true
 	}
 
