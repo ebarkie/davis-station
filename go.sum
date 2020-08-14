@@ -4,8 +4,8 @@ github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/ebarkie/telnet v1.0.3 h1:U5sf1WV87TYTBNvH481Vs6eVZfIJbQtUp4ig5ilhAiI=
 github.com/ebarkie/telnet v1.0.3/go.mod h1:OwGueUn9tGFN1Ioi9xjIk22P+5i9TAf+kwd90gO8iFY=
-github.com/ebarkie/textcmd v1.0.0 h1:3ow0rDD7TDBhtW0pRtvOOuCeZpkSJpQ4E5BCUhzeNiY=
-github.com/ebarkie/textcmd v1.0.0/go.mod h1:QlsLmmpuk68tbxgSbLDiiKaEbsfaLdMctS6BdJ8wqjI=
+github.com/ebarkie/textcmd v1.0.1 h1:2q2JakmNdjuNVgrMG+cLhzuFrLBpQaKWC9EU2ZqKtR4=
+github.com/ebarkie/textcmd v1.0.1/go.mod h1:QlsLmmpuk68tbxgSbLDiiKaEbsfaLdMctS6BdJ8wqjI=
 github.com/ebarkie/weatherlink v1.0.3 h1:KZJU6hjY1KF9cfX2tOTXmI1KhAqVzhZ3WmYxxKuUbYw=
 github.com/ebarkie/weatherlink v1.0.3/go.mod h1:zSc3f3AhgprFa//fPIFVwQeX7R2ozL24E1rZ4f9H8/8=
 github.com/pkg/term v0.0.0-20180730021639-bffc007b7fd5 h1:tFwafIEMf0B7NlcxV/zJ6leBIa81D3hgGSgsE5hCkOQ=
