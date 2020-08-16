@@ -11,7 +11,7 @@ import (
 
 	"github.com/ebarkie/weatherlink/data"
 
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 // Records stores a handle for the archive database.
