@@ -154,7 +154,7 @@ func (t telnetCtx) uname(e textcmd.Env) error {
 func (t telnetCtx) uptime(e textcmd.Env) error {
 	// Round uptime down to nearest second
 	uptime := time.Since(t.startTime)
-	uptime = uptime - (uptime % time.Second)
+	uptime -= (uptime % time.Second)
 
 	t.template(e, "uptime",
 		struct {

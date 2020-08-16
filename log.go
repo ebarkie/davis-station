@@ -66,5 +66,5 @@ func (l *logger) Write(p []byte) (int, error) {
 
 	// The logger ends with newlines but for telnet we need carriage
 	// returns too.
-	return io.MultiWriter(l.writers...).Write(bytes.Replace(p, []byte{lf}, []byte{cr, lf}, -1))
+	return io.MultiWriter(l.writers...).Write(bytes.ReplaceAll(p, []byte{lf}, []byte{cr, lf}))
 }
