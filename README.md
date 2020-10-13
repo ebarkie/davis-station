@@ -8,7 +8,7 @@ Weather Station.
 Features include:
 
 * Console clock synchronization.
-* Storing archive data in a [BoltDB](https://github.com/boltdb/bolt) database.
+* Storing archive data in a [bbolt](https://github.com/etcd-io/bbolt) key/value store.
 * Primitive Quality Control.
 * Pulling loop packets using HTTP GET requests.
 * Pulling archive data using HTTP GET requests.
