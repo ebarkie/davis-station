@@ -45,16 +45,14 @@ func stationEvents(sc serverCtx) error {
 	for e := range ec {
 		switch e := e.(type) {
 		case data.Archive:
-			a := e
-
 			// Add record to archive database
-			err := sc.ar.Add(a)
+			err := sc.ar.Add(e)
 			if err != nil {
 				Error.Printf("Unable to add archive record to database: %s", err.Error())
 			}
 
 			// Update events broker
-			sc.eb.Publish(events.Event{Name: "archive", Data: a})
+			sc.eb.Publish(events.Event{Name: "archive", Data: e})
 		case data.Loop:
 			// Create Loop with sequence and timestamp
 			l := loop{}

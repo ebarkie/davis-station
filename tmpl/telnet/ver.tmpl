@@ -1,3 +1,4 @@
 {{define "ver" -}}
-{{printf "Version %s" .Ver}}
+{{printf "Firmware version %s built %s " .FirmVer (.FirmTime | longTime)}}
+{{printf "Software version %s" .SoftVer}}
 {{end}}

@@ -28,10 +28,13 @@ var (
 // serverCtx contains a shared context that is made available to
 // the HTTP endpoint handlers and telnet connections.
 type serverCtx struct {
-	ar        *archive.Records
-	lb        *loopBuffer
-	eb        *events.Broker
-	wl        *weatherlink.Conn
+	ar *archive.Records
+	lb *loopBuffer
+	eb *events.Broker
+	wl *weatherlink.Conn
+
+	firmTime  time.Time
+	firmVer   string
 	startTime time.Time
 }
 
@@ -55,6 +58,18 @@ func server(cfg config) {
 		eb:        events.New(),
 		wl:        &wl,
 		startTime: time.Now(),
+	}
+
+	// Query firmware information
+	if t, err := sc.wl.GetFirmTime(); err == nil {
+		sc.firmTime = time.Time(t)
+	} else {
+		Warn.Printf("Unable to get firmware build time: %s", err.Error())
+	}
+	if v, err := sc.wl.GetFirmVer(); err == nil {
+		sc.firmVer = string(v)
+	} else {
+		Warn.Printf("Unable to get firmware version: %s", err.Error())
 	}
 
 	// Start weather station events handler
