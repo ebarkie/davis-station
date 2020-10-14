@@ -169,10 +169,11 @@ func (t telnetCtx) uptime(e textcmd.Env) error {
 func (t telnetCtx) ver(e textcmd.Env) error {
 	t.template(e, "ver",
 		struct {
-			FirmTime time.Time
-			FirmVer  string
-			SoftVer  string
-		}{t.firmTime, t.firmVer, version},
+			FirmBuildTime time.Time
+			FirmVer       string
+			SoftBuildTime time.Time
+			SoftVer       string
+		}{t.firmBuildTime, t.firmVer, buildTime, version},
 	)
 
 	return nil

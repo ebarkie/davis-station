@@ -33,9 +33,10 @@ type serverCtx struct {
 	eb *events.Broker
 	wl *weatherlink.Conn
 
-	firmTime  time.Time
-	firmVer   string
 	startTime time.Time
+
+	firmBuildTime time.Time
+	firmVer       string
 }
 
 func server(cfg config) {
@@ -61,14 +62,12 @@ func server(cfg config) {
 	}
 
 	// Query firmware information
-	if t, err := sc.wl.GetFirmTime(); err == nil {
-		sc.firmTime = time.Time(t)
-	} else {
+	sc.firmBuildTime, err = sc.wl.GetFirmBuildTime()
+	if err != nil {
 		Warn.Printf("Unable to get firmware build time: %s", err.Error())
 	}
-	if v, err := sc.wl.GetFirmVer(); err == nil {
-		sc.firmVer = string(v)
-	} else {
+	sc.firmVer, err = sc.wl.GetFirmVer()
+	if err != nil {
 		Warn.Printf("Unable to get firmware version: %s", err.Error())
 	}
 
