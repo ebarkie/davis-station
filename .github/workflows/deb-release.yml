@@ -42,7 +42,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-      - run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+
+      - name: Get version tag
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Build Debian package
         id: deb
