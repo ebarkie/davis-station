@@ -7,7 +7,6 @@ package main
 import (
 	"bytes"
 	"io"
-	"io/ioutil"
 	"log"
 	"os"
 	"sync"
@@ -23,8 +22,8 @@ type logger struct {
 
 // Loggers
 var (
-	Trace = multiLog(ioutil.Discard, "[TRCE]", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
-	Debug = multiLog(ioutil.Discard, "[DBUG]", log.LstdFlags|log.Lshortfile)
+	Trace = multiLog(io.Discard, "[TRCE]", log.LstdFlags|log.Lmicroseconds|log.Lshortfile)
+	Debug = multiLog(io.Discard, "[DBUG]", log.LstdFlags|log.Lshortfile)
 	Info  = multiLog(os.Stdout, "[INFO]", log.LstdFlags)
 	Warn  = multiLog(os.Stderr, "[WARN]", log.LstdFlags|log.Lshortfile)
 	Error = multiLog(os.Stderr, "[ERRO]", log.LstdFlags|log.Lshortfile)
@@ -34,7 +33,7 @@ func multiLog(w io.Writer, prefix string, flag int) *logger {
 	l := &logger{}
 	l.Logger = log.New(l, prefix, flag)
 
-	if w != ioutil.Discard {
+	if w != io.Discard {
 		l.writers = []io.Writer{w}
 	}
 
