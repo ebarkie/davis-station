@@ -4,8 +4,6 @@
 
 /davis-station
 /version.go
-weather.db
+/weather.db
 
 /_build
-/debian/.debhelper
-/debian/davis-station
