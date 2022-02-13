@@ -9,4 +9,11 @@ require (
 	golang.org/x/text v0.3.0
 )
 
-go 1.16
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pkg/term v0.0.0-20180730021639-bffc007b7fd5 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	golang.org/x/sys v0.0.0-20200202164722-d101bd2416d5 // indirect
+)
+
+go 1.17
