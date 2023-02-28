@@ -3,7 +3,7 @@ module github.com/ebarkie/davis-station
 require (
 	github.com/ebarkie/telnet v1.0.3
 	github.com/ebarkie/textcmd v1.0.1
-	github.com/ebarkie/weatherlink v1.0.8
+	github.com/ebarkie/weatherlink v1.0.9
 	github.com/stretchr/testify v1.8.1
 	go.etcd.io/bbolt v1.3.7
 	golang.org/x/text v0.3.8
